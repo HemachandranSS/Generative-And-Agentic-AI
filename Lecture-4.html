@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introduction to Transformers — Lecture Notes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0e1a;
+      --surface: #13152a;
+      --card: #1c1f3a;
+      --accent: #7c5cfc;
+      --accent2: #00d2ff;
+      --accent3: #ff6b6b;
+      --accent4: #43e97b;
+      --text: #e8eaf6;
+      --muted: #8892b0;
+      --border: rgba(124,92,252,0.25);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: radial-gradient(ellipse at 50% 0%, #2a1d6e 0%, var(--bg) 65%);
+      position: relative;
+      overflow: hidden;
+      padding: 2rem;
+    }
+
+    /* Floating orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.35;
+      animation: floatOrb 8s ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 420px; height: 420px; background: var(--accent);  top: -120px; left: -100px; animation-delay: 0s; }
+    .orb-2 { width: 300px; height: 300px; background: var(--accent2); bottom: -80px; right: -60px;  animation-delay: 2s; }
+    .orb-3 { width: 220px; height: 220px; background: var(--accent3); top: 40%;     left: 60%;      animation-delay: 4s; }
+
+    @keyframes floatOrb {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(30px,40px) scale(1.08); }
+    }
+
+    .hero-chip {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: .35rem 1rem;
+      border-radius: 999px;
+      margin-bottom: 1.5rem;
+      animation: fadeDown .8s ease both;
+    }
+
+    @keyframes fadeDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeUp   { from { opacity:0; transform:translateY(30px);  } to { opacity:1; transform:translateY(0); } }
+
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      animation: fadeDown 1s ease .15s both;
+    }
+    .hero h1 span { background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+
+    .hero p {
+      margin-top: 1.2rem;
+      color: var(--muted);
+      font-size: 1.1rem;
+      max-width: 560px;
+      line-height: 1.7;
+      animation: fadeUp 1s ease .35s both;
+    }
+
+    .scroll-hint {
+      margin-top: 3rem;
+      font-size: .85rem;
+      color: var(--muted);
+      animation: fadeUp 1s ease .55s both;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .scroll-hint::after { content:'▼'; animation: bounce 1.5s ease-in-out infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+
+    /* ─── SHARED SECTION WRAPPER ─── */
+    section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 5rem 1.5rem;
+    }
+
+    .section-label {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: .6rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.7;
+      max-width: 680px;
+      margin-bottom: 3rem;
+    }
+
+    /* ─── TIMELINE ─── */
+    .timeline { position: relative; padding-left: 2rem; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: .5rem; top: 0; bottom: 0; width: 2px;
+      background: linear-gradient(to bottom, var(--accent), var(--accent2), var(--accent3));
+    }
+
+    .tl-item {
+      position: relative;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      transform: translateX(-20px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .tl-item.visible { opacity: 1; transform: translateX(0); }
+
+    .tl-dot {
+      position: absolute;
+      left: -1.9rem;
+      top: .3rem;
+      width: 1rem;
+      height: 1rem;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid var(--bg);
+      box-shadow: 0 0 12px var(--accent);
+    }
+
+    .tl-year {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: .25rem;
+    }
+
+    .tl-title { font-size: 1.1rem; font-weight: 700; margin-bottom: .35rem; }
+    .tl-desc  { color: var(--muted); font-size: .9rem; line-height: 1.65; }
+
+    /* ─── CONCEPT CARDS ─── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .concept-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.6rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform .3s ease, box-shadow .3s ease;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    .concept-card.visible { opacity:1; transform:translateY(0); transition: opacity .6s ease, transform .6s ease, box-shadow .3s ease; }
+    .concept-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(124,92,252,.25); }
+
+    .concept-card::before {
+      content:'';
+      position:absolute;
+      inset:0;
+      background: radial-gradient(circle at top left, rgba(124,92,252,.1), transparent 60%);
+      pointer-events:none;
+    }
+
+    .card-icon { font-size: 2rem; margin-bottom: .8rem; }
+    .card-title { font-size: 1rem; font-weight: 700; margin-bottom: .5rem; }
+    .card-desc { color: var(--muted); font-size: .87rem; line-height: 1.65; }
+
+    /* ─── COMPARISON TABLE ─── */
+    .compare-wrap {
+      overflow-x: auto;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .9rem;
+    }
+
+    thead tr { background: linear-gradient(90deg, var(--accent) 0%, #4b2fc4 100%); }
+    thead th { padding: 1rem 1.4rem; text-align: left; font-weight: 700; font-size:.85rem; letter-spacing:.06em; }
+
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .2s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(124,92,252,.07); }
+    tbody td { padding: .9rem 1.4rem; color: var(--muted); vertical-align: top; line-height:1.55; }
+    tbody td:first-child { color: var(--text); font-weight: 600; }
+
+    .tag-good  { display:inline-block; background:rgba(67,233,123,.15); color:var(--accent4); font-size:.72rem; font-weight:700; padding:.15rem .5rem; border-radius:6px; }
+    .tag-bad   { display:inline-block; background:rgba(255,107,107,.15); color:var(--accent3); font-size:.72rem; font-weight:700; padding:.15rem .5rem; border-radius:6px; }
+
+    /* ─── AI SPECTRUM ─── */
+    .spectrum-row {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .spec-box {
+      flex: 1;
+      min-width: 240px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: transform .3s;
+      opacity:0; transform:scale(.95);
+    }
+    .spec-box.visible { opacity:1; transform:scale(1); transition:opacity .6s ease, transform .6s ease; }
+    .spec-box:hover { transform: scale(1.03); }
+
+    .spec-box .badge {
+      display:inline-block;
+      padding:.3rem .85rem;
+      border-radius:999px;
+      font-size:.73rem;
+      font-weight:700;
+      letter-spacing:.05em;
+      margin-bottom:1rem;
+    }
+    .gen-badge  { background:rgba(124,92,252,.2); color:var(--accent); }
+    .dis-badge  { background:rgba(0,210,255,.15);  color:var(--accent2); }
+
+    .spec-box h3 { font-size:1.15rem; font-weight:800; margin-bottom:.6rem; }
+    .spec-box p  { color:var(--muted); font-size:.88rem; line-height:1.65; }
+    .spec-box ul { color:var(--muted); font-size:.88rem; line-height:1.65; padding-left:1.2rem; margin-top:.6rem; }
+    .spec-box ul li { margin-bottom:.3rem; }
+
+    /* ─── ATTENTION SPOTLIGHT ─── */
+    .attention-visual {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      text-align: center;
+    }
+
+    .words-row {
+      display: flex;
+      gap: .7rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 1.5rem 0;
+    }
+
+    .word-pill {
+      padding: .45rem 1rem;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      font-size: .9rem;
+      font-weight: 600;
+      transition: all .3s;
+      cursor: default;
+    }
+    .word-pill.hl1 { border-color:var(--accent);  background:rgba(124,92,252,.15); color:var(--accent);  box-shadow:0 0 16px rgba(124,92,252,.4); }
+    .word-pill.hl2 { border-color:var(--accent2); background:rgba(0,210,255,.1);   color:var(--accent2); box-shadow:0 0 14px rgba(0,210,255,.35); }
+    .word-pill.hl3 { border-color:var(--accent4); background:rgba(67,233,123,.1);  color:var(--accent4); box-shadow:0 0 12px rgba(67,233,123,.3); }
+    .word-caption { color:var(--muted); font-size:.85rem; margin-top:.6rem; }
+
+    /* ─── MODEL GALLERY ─── */
+    .model-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .model-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.4rem;
+      text-align: center;
+      transition: transform .3s, box-shadow .3s;
+      opacity:0; transform:scale(.9);
+    }
+    .model-card.visible { opacity:1; transform:scale(1); transition:opacity .5s ease, transform .5s ease, box-shadow .3s; }
+    .model-card:hover { transform:scale(1.06); box-shadow:0 16px 40px rgba(124,92,252,.3); }
+    .model-emoji { font-size: 2.2rem; margin-bottom: .5rem; }
+    .model-name  { font-size: 1rem; font-weight: 800; margin-bottom: .25rem; }
+    .model-year  { font-size: .72rem; color: var(--accent2); font-weight:700; letter-spacing:.08em; margin-bottom:.4rem; }
+    .model-desc  { font-size: .78rem; color: var(--muted); line-height:1.5; }
+
+    /* ─── KEY TAKEAWAY ─── */
+    .takeaway {
+      background: linear-gradient(135deg, rgba(124,92,252,.15), rgba(0,210,255,.1));
+      border: 1px solid rgba(124,92,252,.4);
+      border-radius: 20px;
+      padding: 3rem;
+      text-align: center;
+    }
+    .takeaway h2 { font-size: 1.8rem; font-weight:800; margin-bottom:1rem; }
+    .takeaway p  { color:var(--muted); font-size:1rem; line-height:1.75; max-width:680px; margin:0 auto; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      text-align:center;
+      padding: 2rem;
+      color: var(--muted);
+      font-size:.82rem;
+      border-top:1px solid var(--border);
+    }
+
+    /* ─── DIVIDER ─── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0 auto;
+      max-width: 900px;
+    }
+
+    /* ─── PROGRESS BAR ─── */
+    #progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      z-index: 999;
+      transition: width .1s linear;
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress-bar" style="width:0%"></div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="hero-chip">🎓 AI / NLP Lecture Notes</div>
+  <h1>Introduction to<br><span>Transformers</span></h1>
+  <p>From rule-based systems to large language models — a visual journey through the AI revolution that changed everything in 2017.</p>
+  <div class="scroll-hint">Scroll to explore</div>
+</div>
+
+<!-- ─── SECTION 1: WHY AI? ─── -->
+<section id="why">
+  <div class="section-label">Part 01</div>
+  <div class="section-title">Why Outsource to a Machine?</div>
+  <p class="section-sub">Imagine reading a 500-page technical document. A human might take <strong>10 days</strong>. A machine can process it in <strong>10 minutes</strong>. That's the core motivation behind modern AI.</p>
+  <div class="card-grid">
+    <div class="concept-card">
+      <div class="card-icon">📚</div>
+      <div class="card-title">The 500-Page Problem</div>
+      <div class="card-desc">Large volumes of text are time-consuming for humans to read, understand, and summarise. AI systems can ingest and process them in seconds.</div>
+    </div>
+    <div class="concept-card">
+      <div class="card-icon">⚡</div>
+      <div class="card-title">Speed × Scale</div>
+      <div class="card-desc">10 days → 10 minutes. AI doesn't get tired, doesn't need breaks, and scales instantly — processing thousands of documents simultaneously.</div>
+    </div>
+    <div class="concept-card">
+      <div class="card-icon">🤖</div>
+      <div class="card-title">Outsourcing Intelligence</div>
+      <div class="card-desc">We delegate repetitive, pattern-heavy cognitive work to software. The machine learns how to do it — we define the goal.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─── SECTION 2: TIMELINE ─── -->
+<section id="timeline">
+  <div class="section-label">Part 02</div>
+  <div class="section-title">The AI Timeline</div>
+  <p class="section-sub">Key milestones that shaped modern Natural Language Processing.</p>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--muted)"></div>
+      <div class="tl-year">Pre-2017</div>
+      <div class="tl-title">Rule-Based & Statistical Models</div>
+      <div class="tl-desc">Hardcoded logic, no learning ability. Later, statistical models introduced probability rules. All followed rigid predefined patterns (e.g., Ajax-based autocomplete).</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--accent3)"></div>
+      <div class="tl-year">2013</div>
+      <div class="tl-title">Word2Vec</div>
+      <div class="tl-desc">Revolutionised NLP by <em>capturing semantic meaning in words</em> — "vacation," "travel," "hotel" cluster together because they share contextual meaning.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--accent2)"></div>
+      <div class="tl-year">Pre-2017</div>
+      <div class="tl-title">RNNs & LSTMs</div>
+      <div class="tl-desc">Recurrent Neural Networks processed words <strong>one by one</strong>. LSTMs (Long Short-Term Memory) and GRUs were designed to handle longer dependencies — but still had limits.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--accent)"></div>
+      <div class="tl-year">2017 ⭐</div>
+      <div class="tl-title">Transformers — "Attention Is All You Need"</div>
+      <div class="tl-desc">The landmark paper introduced the Transformer architecture, replacing RNNs entirely. All words are processed <strong>simultaneously</strong> (parallel processing), solving long-dependency issues and dramatically speeding up training.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:#ffd700"></div>
+      <div class="tl-year">2018</div>
+      <div class="tl-title">BERT</div>
+      <div class="tl-desc"><strong>B</strong>idirectional <strong>E</strong>ncoder <strong>R</strong>epresentations from <strong>T</strong>ransformers — reads text in both directions for deeper language understanding. Google's milestone NLP model.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--accent4)"></div>
+      <div class="tl-year">2020+</div>
+      <div class="tl-title">Rise of Large Language Models (LLMs)</div>
+      <div class="tl-desc">GPT-3, GPT-4, T5, Gemini and others emerged — capable of text generation, code writing, image understanding and even multimodal (text + image) reasoning.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--accent3)"></div>
+      <div class="tl-year">2025</div>
+      <div class="tl-title">GPT-4 & Multimodal AI</div>
+      <div class="tl-desc">Multimodal understanding — text, images, audio, video — in a single model. Text-to-video generation becomes mainstream. Agentic AI models that take decisions autonomously.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─── SECTION 3: RNN vs TRANSFORMER ─── -->
+<section id="compare">
+  <div class="section-label">Part 03</div>
+  <div class="section-title">RNN / LSTM vs Transformer</div>
+  <p class="section-sub">Why did Transformers replace the previous generation of sequence models?</p>
+  <div class="compare-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Aspect</th>
+          <th>RNN / LSTM</th>
+          <th>Transformer</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Processing Style</td>
+          <td>Word-by-word (sequential) <span class="tag-bad">Slow</span></td>
+          <td>All words at once (parallel) <span class="tag-good">Fast</span></td>
+        </tr>
+        <tr>
+          <td>Long Dependencies</td>
+          <td>Struggles to remember distant context <span class="tag-bad">Weak</span></td>
+          <td>Attention mechanism handles any distance <span class="tag-good">Strong</span></td>
+        </tr>
+        <tr>
+          <td>Training Speed</td>
+          <td>Slower due to sequential steps</td>
+          <td>Significantly faster with parallelism</td>
+        </tr>
+        <tr>
+          <td>Example Problem</td>
+          <td>"<em>Kohli</em> didn't play because <strong>he</strong> was not fit" — who is "he"? Hard after many words.</td>
+          <td>Attention directly links "he" back to "Kohli" regardless of distance.</td>
+        </tr>
+        <tr>
+          <td>Modern Usage</td>
+          <td>Mostly replaced / legacy</td>
+          <td>Foundation of all modern LLMs</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─── SECTION 4: ATTENTION ─── -->
+<section id="attention">
+  <div class="section-label">Part 04</div>
+  <div class="section-title">The Attention Mechanism</div>
+  <p class="section-sub">The secret sauce of Transformers. Instead of reading words linearly, the model asks: <em>"Which other words in this sentence should I pay attention to?"</em></p>
+  <div class="attention-visual">
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:.5rem;">Example sentence — hover a word to see its connections:</p>
+    <div class="words-row" id="words-row">
+      <div class="word-pill hl1">Kohli</div>
+      <div class="word-pill">didn't</div>
+      <div class="word-pill">play</div>
+      <div class="word-pill">the</div>
+      <div class="word-pill">match</div>
+      <div class="word-pill">because</div>
+      <div class="word-pill hl2">he</div>
+      <div class="word-pill">was</div>
+      <div class="word-pill hl3">not</div>
+      <div class="word-pill hl3">fit</div>
+    </div>
+    <p class="word-caption">
+      <span style="color:var(--accent)">■ Kohli</span> &nbsp;→&nbsp;
+      <span style="color:var(--accent2)">■ "he"</span> &nbsp;refers to &nbsp;
+      <span style="color:var(--accent4)">■ not fit</span> &nbsp;— reason for not playing. Transformers learn all these links at once.
+    </p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─── SECTION 5: GENERATIVE vs DISCRIMINATIVE ─── -->
+<section id="genai">
+  <div class="section-label">Part 05</div>
+  <div class="section-title">Generative vs Discriminative AI</div>
+  <p class="section-sub">Two fundamentally different approaches that serve complementary purposes.</p>
+  <div class="spectrum-row">
+    <div class="spec-box">
+      <span class="badge gen-badge">🎨 Generative AI</span>
+      <h3>Creates New Data</h3>
+      <p>Generates new outcomes — text, images, music, code — that did not exist before.</p>
+      <ul>
+        <li>Images from descriptions ("a cat on the beach")</li>
+        <li>Text generation (stories, summaries, Q&amp;A)</li>
+        <li>Code synthesis</li>
+        <li>⚠️ Output may be inaccurate, misleading, or offensive — always verify!</li>
+      </ul>
+    </div>
+    <div class="spec-box">
+      <span class="badge dis-badge">🔍 Discriminative AI</span>
+      <h3>Classifies Existing Data</h3>
+      <p>Analyses and classifies the data that already exists — makes predictions and decisions.</p>
+      <ul>
+        <li>Diabetic / Non-diabetic classification</li>
+        <li>Win / Lose election prediction</li>
+        <li>Fake image detector (real vs AI-generated)</li>
+        <li>Text sentiment classification</li>
+      </ul>
+    </div>
+  </div>
+  <br/>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.6rem;margin-top:0">
+    <p style="color:var(--muted);font-size:.9rem;line-height:1.7;">
+      💡 <strong style="color:var(--text)">Key insight from the lecture:</strong> At the back-end, even Generative AI systems use Discriminative models for evaluation during training (e.g., GANs — Generative Adversarial Networks — use a Discriminator to judge if generated images are "real enough").
+    </p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─── SECTION 6: MODEL GALLERY ─── -->
+<section id="models">
+  <div class="section-label">Part 06</div>
+  <div class="section-title">Famous Transformer Models</div>
+  <p class="section-sub">Each model below is built on the Transformer architecture introduced in 2017.</p>
+  <div class="model-gallery">
+    <div class="model-card">
+      <div class="model-emoji">🤖</div>
+      <div class="model-name">GPT-3</div>
+      <div class="model-year">2020</div>
+      <div class="model-desc">Generative Pre-trained Transformer 3. Massive text generation capability.</div>
+    </div>
+    <div class="model-card">
+      <div class="model-emoji">💬</div>
+      <div class="model-name">GPT-4</div>
+      <div class="model-year">2023 / 2025</div>
+      <div class="model-desc">Multimodal reasoning — text + images. Powers ChatGPT's latest version.</div>
+    </div>
+    <div class="model-card">
+      <div class="model-emoji">🔵</div>
+      <div class="model-name">BERT</div>
+      <div class="model-year">2018</div>
+      <div class="model-desc">Bidirectional encoder. Reads text left-to-right AND right-to-left for deep understanding.</div>
+    </div>
+    <div class="model-card">
+      <div class="model-emoji">🔄</div>
+      <div class="model-name">T5</div>
+      <div class="model-year">2019</div>
+      <div class="model-desc">Text-to-Text Transfer Transformer. Frames every NLP task as a text generation problem.</div>
+    </div>
+    <div class="model-card">
+      <div class="model-emoji">🌟</div>
+      <div class="model-name">Gemini</div>
+      <div class="model-year">2023+</div>
+      <div class="model-desc">Google's multimodal LLM. Handles text, images, audio, and video natively.</div>
+    </div>
+    <div class="model-card">
+      <div class="model-emoji">🖼️</div>
+      <div class="model-name">Diffusion Models</div>
+      <div class="model-year">2020+</div>
+      <div class="model-desc">Generative models for image creation (e.g., Stable Diffusion, DALL·E, Midjourney).</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─── SECTION 7: WORD PREDICTION ─── -->
+<section id="wordpred">
+  <div class="section-label">Part 07</div>
+  <div class="section-title">Next-Word Prediction</div>
+  <p class="section-sub">Before Transformers, search engines used predefined Ajax-based autocomplete. Transformers replaced this with <em>learned</em> next-word prediction based on context — understanding partial queries, spelling mistakes, and semantic intent.</p>
+  <div class="card-grid">
+    <div class="concept-card">
+      <div class="card-icon">🕰️</div>
+      <div class="card-title">Old: Ajax Autocomplete</div>
+      <div class="card-desc">Each character you type triggers a JavaScript call returning a predefined pattern list. "What is m…" → hardcoded: machine learning, mobile net, etc. No real understanding.</div>
+    </div>
+    <div class="concept-card">
+      <div class="card-icon">🧠</div>
+      <div class="card-title">New: Transformer Prediction</div>
+      <div class="card-desc">The model truly understands context. It handles spelling mistakes ("lapy" → laptop), partial words ("ML" → machine learning), and semantic synonyms.</div>
+    </div>
+    <div class="concept-card">
+      <div class="card-icon">🔗</div>
+      <div class="card-title">Semantic Word Clusters</div>
+      <div class="card-desc">Type "vacation" → the model surfaces related words: <em>travel, hotel, trip, flights, April, holiday, transport</em> — because it understands meaning, not just spelling.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─── PRE-TRAINED MODELS ─── -->
+<section id="pretrained">
+  <div class="section-label">Part 08</div>
+  <div class="section-title">Pre-Trained Models</div>
+  <p class="section-sub">Instead of training from scratch, we reuse powerful models already trained on enormous datasets. We only add a small task-specific layer on top.</p>
+  <div class="card-grid">
+    <div class="concept-card" style="border-color:rgba(0,210,255,.3)">
+      <div class="card-icon">🖼️</div>
+      <div class="card-title">CNN (Image) Pre-Trained Models</div>
+      <div class="card-desc"><strong>ResNet-50, MobileNet-V2, EfficientNet</strong> — available via Keras / TensorFlow. We load the weights and attach a classification head for our specific task (e.g., flower recognition).</div>
+    </div>
+    <div class="concept-card" style="border-color:rgba(124,92,252,.4)">
+      <div class="card-icon">📝</div>
+      <div class="card-title">NLP Pre-Trained Models</div>
+      <div class="card-desc"><strong>BERT, GPT, T5, Gemini</strong> — trained on billions of text tokens. Fine-tune on your domain with a fraction of the compute and data.</div>
+    </div>
+    <div class="concept-card" style="border-color:rgba(67,233,123,.3)">
+      <div class="card-icon">🎵</div>
+      <div class="card-title">Speech Pre-Trained Models</div>
+      <div class="card-desc"><strong>WaveNet</strong> and similar — trained on large audio corpora. Both generative (speech synthesis) and discriminative (speech-to-text) variants exist.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─── TAKEAWAY ─── -->
+<section>
+  <div class="takeaway">
+    <div class="card-icon" style="font-size:3rem;margin-bottom:1rem;">🚀</div>
+    <h2>The Big Picture</h2>
+    <p>The Transformer architecture (2017) solved the fundamental problems of sequential processing and long-range dependencies that plagued RNNs. By processing all tokens in <strong>parallel</strong> and using <strong>attention</strong> to weigh relationships between any two words — regardless of distance — Transformers became the backbone of every major modern AI system, from ChatGPT to Gemini to DALL·E.</p>
+  </div>
+</section>
+
+<footer>
+  <p>Lecture notes visualised for educational purposes &nbsp;|&nbsp; Introduction to Transformers &nbsp;|&nbsp; 2025</p>
+</footer>
+
+<script>
+  // ─── Progress bar ───
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    document.getElementById('progress-bar').style.width = (scrolled / total * 100) + '%';
+  });
+
+  // ─── Intersection observer for animations ───
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), entry.target.dataset.delay || 0);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.concept-card, .tl-item, .spec-box, .model-card').forEach((el, i) => {
+    el.dataset.delay = (i % 4) * 100;
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>

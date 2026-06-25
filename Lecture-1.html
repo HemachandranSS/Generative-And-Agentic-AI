@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GenAI & Agentic AI — Lecture 1 (Intro) Notes</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Fira+Code:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #0d0e1a;
+            --card: #1c1f3a;
+            --accent: #ff9f43;
+            --accent2: #ee5a24;
+            --accent3: #fd79a8;
+            --accent4: #43e97b;
+            --accent5: #00d2ff;
+            --text: #e8eaf6;
+            --muted: #8892b0;
+            --border: rgba(255, 159, 67, 0.22);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* HERO */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: radial-gradient(ellipse at 50% 0%, #2a1200 0%, var(--bg) 65%);
+            position: relative;
+            overflow: hidden;
+            padding: 2rem;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: floatOrb 8s ease-in-out infinite alternate;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--accent);
+            top: -120px;
+            left: -100px;
+        }
+
+        .orb-2 {
+            width: 280px;
+            height: 280px;
+            background: var(--accent2);
+            bottom: -80px;
+            right: -60px;
+            animation-delay: 2s;
+        }
+
+        .orb-3 {
+            width: 200px;
+            height: 200px;
+            background: var(--accent3);
+            top: 40%;
+            left: 60%;
+            animation-delay: 4s;
+        }
+
+        @keyframes floatOrb {
+            from {
+                transform: translate(0, 0)scale(1)
+            }
+
+            to {
+                transform: translate(30px, 40px)scale(1.08)
+            }
+        }
+
+        .hero-chip {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff;
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            padding: .35rem 1rem;
+            border-radius: 999px;
+            margin-bottom: 1.5rem;
+            animation: fadeDown .8s ease both;
+        }
+
+        @keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.2rem, 6vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            animation: fadeDown 1s ease .15s both;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(90deg, var(--accent), var(--accent3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            margin-top: 1.2rem;
+            color: var(--muted);
+            font-size: 1.05rem;
+            max-width: 600px;
+            line-height: 1.7;
+            animation: fadeUp 1s ease .35s both;
+        }
+
+        .hero-meta {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeUp 1s ease .5s both;
+        }
+
+        .hero-meta span {
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            font-size: .8rem;
+            color: var(--muted);
+            background: rgba(255, 255, 255, .05);
+            padding: .35rem .9rem;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+        }
+
+        .scroll-hint {
+            margin-top: 3rem;
+            font-size: .85rem;
+            color: var(--muted);
+            animation: fadeUp 1s ease .65s both;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        .scroll-hint::after {
+            content: '▼';
+            animation: bounce 1.5s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0)
+            }
+
+            50% {
+                transform: translateY(6px)
+            }
+        }
+
+        /* SECTIONS */
+        section {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 5rem 1.5rem;
+        }
+
+        .section-label {
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: .6rem;
+        }
+
+        .section-title {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        .section-sub {
+            color: var(--muted);
+            font-size: 1rem;
+            line-height: 1.7;
+            max-width: 720px;
+            margin-bottom: 3rem;
+        }
+
+        /* TIMELINE */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: .5rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--accent), var(--accent3), var(--accent5));
+        }
+
+        .tl-item {
+            position: relative;
+            margin-bottom: 2.5rem;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity .6s ease, transform .6s ease;
+        }
+
+        .tl-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .tl-dot {
+            position: absolute;
+            left: -1.9rem;
+            top: .3rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 2px solid var(--bg);
+            box-shadow: 0 0 12px var(--accent);
+        }
+
+        .tl-year {
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--accent5);
+            margin-bottom: .25rem;
+        }
+
+        .tl-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: .35rem;
+        }
+
+        .tl-desc {
+            color: var(--muted);
+            font-size: .9rem;
+            line-height: 1.65;
+        }
+
+        /* CARDS */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .concept-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.6rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform .3s ease, box-shadow .3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .concept-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity .6s ease, transform .6s ease, box-shadow .3s ease;
+        }
+
+        .concept-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 50px rgba(255, 159, 67, .2);
+        }
+
+        .concept-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top left, rgba(255, 159, 67, .08), transparent 60%);
+            pointer-events: none;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-bottom: .8rem;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: .5rem;
+        }
+
+        .card-desc {
+            color: var(--muted);
+            font-size: .87rem;
+            line-height: 1.65;
+        }
+
+        /* TABLE */
+        .compare-wrap {
+            overflow-x: auto;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .9rem;
+        }
+
+        thead tr {
+            background: linear-gradient(90deg, var(--accent2) 0%, var(--accent) 100%);
+        }
+
+        thead th {
+            padding: 1rem 1.4rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: .85rem;
+            letter-spacing: .06em;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background .2s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 159, 67, .05);
+        }
+
+        tbody td {
+            padding: .9rem 1.4rem;
+            color: var(--muted);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        /* SPEC BOXES */
+        .spectrum-row {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .spec-box {
+            flex: 1;
+            min-width: 240px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: transform .3s;
+            opacity: 0;
+            transform: scale(.95);
+        }
+
+        .spec-box.visible {
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity .6s ease, transform .6s ease;
+        }
+
+        .spec-box:hover {
+            transform: scale(1.03);
+        }
+
+        .spec-box .badge {
+            display: inline-block;
+            padding: .3rem .85rem;
+            border-radius: 999px;
+            font-size: .73rem;
+            font-weight: 700;
+            letter-spacing: .05em;
+            margin-bottom: 1rem;
+        }
+
+        .badge-orange {
+            background: rgba(255, 159, 67, .2);
+            color: var(--accent);
+        }
+
+        .badge-red {
+            background: rgba(238, 90, 36, .2);
+            color: var(--accent2);
+        }
+
+        .badge-pink {
+            background: rgba(253, 121, 168, .2);
+            color: var(--accent3);
+        }
+
+        .badge-green {
+            background: rgba(67, 233, 123, .2);
+            color: var(--accent4);
+        }
+
+        .spec-box h3 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: .6rem;
+        }
+
+        .spec-box p {
+            color: var(--muted);
+            font-size: .88rem;
+            line-height: 1.65;
+        }
+
+        .spec-box ul {
+            color: var(--muted);
+            font-size: .88rem;
+            line-height: 1.65;
+            padding-left: 1.2rem;
+            margin-top: .6rem;
+        }
+
+        .spec-box ul li {
+            margin-bottom: .35rem;
+        }
+
+        /* ANALOGY BOX */
+        .analogy-row {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .analogy-box {
+            flex: 1;
+            min-width: 240px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .analogy-box:hover {
+            box-shadow: 0 12px 35px rgba(255, 159, 67, .15);
+        }
+
+        .a-emoji {
+            font-size: 3rem;
+            margin-bottom: .75rem;
+        }
+
+        .a-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: .5rem;
+        }
+
+        .a-desc {
+            color: var(--muted);
+            font-size: .86rem;
+            line-height: 1.65;
+        }
+
+        .a-type {
+            margin-top: .75rem;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        /* AGENT STEPS */
+        .agent-steps {
+            display: flex;
+            flex-direction: column;
+            gap: .8rem;
+            margin-top: 1rem;
+        }
+
+        .agent-step {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: opacity .5s ease, transform .5s ease;
+        }
+
+        .agent-step.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .8rem;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            font-size: .87rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .step-text strong {
+            color: var(--text);
+        }
+
+        /* STATS */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.8rem;
+            text-align: center;
+            opacity: 0;
+            transform: scale(.9);
+            transition: opacity .5s, transform .5s;
+        }
+
+        .stat-box.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .stat-box:hover {
+            box-shadow: 0 12px 35px rgba(255, 159, 67, .2);
+        }
+
+        .stat-num {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--accent), var(--accent3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: .82rem;
+            margin-top: .3rem;
+            line-height: 1.5;
+        }
+
+        /* CHIP */
+        .chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .6rem;
+            margin-top: 1rem;
+        }
+
+        .chip {
+            padding: .35rem .9rem;
+            border-radius: 999px;
+            font-size: .78rem;
+            font-weight: 700;
+            border: 1.5px solid;
+            transition: transform .2s;
+        }
+
+        .chip:hover {
+            transform: scale(1.05);
+        }
+
+        .chip-o {
+            border-color: rgba(255, 159, 67, .5);
+            color: var(--accent);
+            background: rgba(255, 159, 67, .1);
+        }
+
+        .chip-b {
+            border-color: rgba(0, 210, 255, .4);
+            color: var(--accent5);
+            background: rgba(0, 210, 255, .08);
+        }
+
+        .chip-g {
+            border-color: rgba(67, 233, 123, .4);
+            color: var(--accent4);
+            background: rgba(67, 233, 123, .08);
+        }
+
+        .chip-p {
+            border-color: rgba(253, 121, 168, .4);
+            color: var(--accent3);
+            background: rgba(253, 121, 168, .08);
+        }
+
+        /* HIGHLIGHT */
+        .highlight-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.6rem;
+            margin-top: 1.5rem;
+        }
+
+        .highlight-box p {
+            color: var(--muted);
+            font-size: .9rem;
+            line-height: 1.7;
+        }
+
+        /* TAKEAWAY */
+        .takeaway {
+            background: linear-gradient(135deg, rgba(255, 159, 67, .12), rgba(253, 121, 168, .08));
+            border: 1px solid rgba(255, 159, 67, .3);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+        }
+
+        .takeaway h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .takeaway p {
+            color: var(--muted);
+            font-size: 1rem;
+            line-height: 1.75;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* NAV */
+        nav {
+            position: fixed;
+            top: 8px;
+            right: 1rem;
+            z-index: 998;
+            display: flex;
+            gap: .5rem;
+            flex-wrap: wrap;
+            max-width: 750px;
+            justify-content: flex-end;
+        }
+
+        nav a {
+            font-size: .72rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--muted);
+            background: rgba(13, 14, 26, .85);
+            border: 1px solid var(--border);
+            padding: .3rem .75rem;
+            border-radius: 999px;
+            backdrop-filter: blur(8px);
+            transition: color .2s, border-color .2s;
+        }
+
+        nav a:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent3));
+            z-index: 999;
+            transition: width .1s linear;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+            margin: 0 auto;
+            max-width: 900px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--muted);
+            font-size: .82rem;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="progress-bar" style="width:0%"></div>
+
+    <nav>
+        <a href="#evolution">Evolution</a>
+        <a href="#genai">Gen AI</a>
+        <a href="#usecases">Use Cases</a>
+        <a href="#agentic">Agentic</a>
+        <a href="#career">Career</a>
+        <a href="#tools">Tools</a>
+    </nav>
+
+    <!-- HERO -->
+    <div class="hero">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="hero-chip">🎓 AI / LLM Lecture Notes</div>
+        <h1>Intro to GenAI<br><span>&amp; Agentic AI</span></h1>
+        <p>AI evolution from rule-based systems to LLMs, what Generative AI creates, how Agentic AI acts autonomously,
+            and why this is the right time to build AI skills.</p>
+        <div class="hero-meta">
+            <span>📅 Lecture 1 — Demo Session</span>
+            <span>🗂 5 Topics</span>
+            <span>⏱ ~60 min</span>
+        </div>
+        <div class="scroll-hint">Scroll to explore</div>
+    </div>
+
+    <!-- PART 01: EVOLUTION -->
+    <section id="evolution">
+        <div class="section-label">Part 01</div>
+        <div class="section-title">Evolution of AI</div>
+        <p class="section-sub">AI has evolved through distinct phases — from rigid rule-based systems to modern models
+            that <em>generate</em> new content on demand.</p>
+
+        <div class="timeline">
+            <div class="tl-item">
+                <div class="tl-dot" style="background:var(--muted)"></div>
+                <div class="tl-year">Early Days</div>
+                <div class="tl-title">Rule-Based &amp; Expert Systems</div>
+                <div class="tl-desc">Followed predefined hardcoded rules — expert systems, symbolic programming,
+                    decision trees. Example: early medical diagnosis programs. <strong>Could not learn from
+                        data.</strong> Failed in complex, real-world environments.</div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-dot" style="background:var(--accent2)"></div>
+                <div class="tl-year">1990s</div>
+                <div class="tl-title">Machine Learning Revolution</div>
+                <div class="tl-desc">Shift from hardcoded rules to <strong>learning from data</strong>. Key
+                    developments: statistical models, neural networks, data mining. Systems could now improve by
+                    observing patterns — without explicit instructions for every case.</div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-dot" style="background:var(--accent)"></div>
+                <div class="tl-year">2010s</div>
+                <div class="tl-title">Deep Learning Era (Big Data + GPUs)</div>
+                <div class="tl-desc">Deep learning existed in theory from the 1990s but required huge computational
+                    resources. The arrival of <strong>Big Data, Hadoop, Spark, and GPUs</strong> made it viable.
+                    Breakthroughs: image recognition, speech recognition, language translation, self-driving technology.
+                </div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-dot" style="background:var(--accent3)"></div>
+                <div class="tl-year">2020s</div>
+                <div class="tl-title">Generative AI &amp; Large Language Models</div>
+                <div class="tl-desc">Modern AI systems can now <strong>generate text, create images, write code, and
+                        compose music</strong>. Powered by Transformer architectures and LLMs (ChatGPT, Gemini, Claude).
+                    A fundamental shift from "classify existing data" to "create new data".</div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-dot" style="background:var(--accent4)"></div>
+                <div class="tl-year">Now &amp; Future</div>
+                <div class="tl-title">Agentic AI &amp; Autonomous Agents</div>
+                <div class="tl-desc">AI evolving from tools that follow instructions into systems that <strong>plan,
+                        decide, and act</strong> autonomously. Future: understanding human emotions, assisting
+                    scientific discoveries, improving healthcare and education.</div>
+            </div>
+        </div>
+
+        <!-- What is AI -->
+        <div class="highlight-box" style="margin-top:1rem;">
+            <p>🤖 <strong style="color:var(--text)">Definition of AI (from the lecture):</strong><br><br>
+                <em>Developing systems that can perform tasks which require human intelligence</em> — like
+                <strong>learning</strong>, <strong>problem solving</strong>, and <strong>decision making</strong>.
+            </p>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- PART 02: GENERATIVE AI -->
+    <section id="genai">
+        <div class="section-label">Part 02</div>
+        <div class="section-title">What Is Generative AI?</div>
+        <p class="section-sub">A <strong>subset of AI</strong> designed to create new, original content — resembling
+            human-made work — by learning patterns from massive datasets.</p>
+
+        <div class="spectrum-row" style="margin-bottom:2rem;">
+            <div class="spec-box">
+                <span class="badge badge-orange">🎨 Generative AI</span>
+                <h3>Creates New Content</h3>
+                <p>Instead of just analyzing or classifying existing data, generative AI <strong>produces entirely new
+                        outputs</strong> based on what it learned from training data.</p>
+                <ul>
+                    <li>Trained on large datasets (text, images, audio)</li>
+                    <li>Learns patterns, relationships, structures</li>
+                    <li>Generates new content from user prompts</li>
+                    <li>Built on <strong>Transformer architectures</strong></li>
+                    <li>Output resembles human-made work</li>
+                </ul>
+            </div>
+            <div class="spec-box">
+                <span class="badge badge-red">🔍 Traditional AI</span>
+                <h3>Analyzes &amp; Classifies</h3>
+                <p>Traditional AI focuses on analyzing and <strong>predicting or classifying</strong> data that already
+                    exists — outputting a label, decision, or alert.</p>
+                <ul>
+                    <li>Spam detection → Spam / Not Spam</li>
+                    <li>Fraud detection → Fraud / Legitimate</li>
+                    <li>Image recognition → What is in this image?</li>
+                    <li>Sentiment analysis → Positive / Negative</li>
+                    <li>Output: a decision, label, or score</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="compare-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Traditional AI</th>
+                        <th>Generative AI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Email</td>
+                        <td>Spam detection (classify)</td>
+                        <td>Write the email (create)</td>
+                    </tr>
+                    <tr>
+                        <td>Images</td>
+                        <td>Image recognition (label)</td>
+                        <td>Image creation (generate)</td>
+                    </tr>
+                    <tr>
+                        <td>Text</td>
+                        <td>Sentiment analysis (score)</td>
+                        <td>Article / report writing</td>
+                    </tr>
+                    <tr>
+                        <td>Fraud</td>
+                        <td>Fraud detection (flag)</td>
+                        <td>Report generation (summarise)</td>
+                    </tr>
+                    <tr>
+                        <td>Output type</td>
+                        <td>Label / prediction / decision</td>
+                        <td>Text / image / audio / code / video</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- PART 03: USE CASES -->
+    <section id="usecases">
+        <div class="section-label">Part 03</div>
+        <div class="section-title">Real-World Use Cases</div>
+        <p class="section-sub">Generative AI is already transforming industries — from content creation to healthcare,
+            education to software development.</p>
+
+        <div class="card-grid">
+            <div class="concept-card">
+                <div class="card-icon">✉️</div>
+                <div class="card-title">Content Writing</div>
+                <div class="card-desc">Emails, blogs, reports, summaries. Example prompt: <em>"Write an email requesting
+                        leave for 5 days"</em> → AI generates a professional, polished email instantly.</div>
+            </div>
+            <div class="concept-card">
+                <div class="card-icon">💻</div>
+                <div class="card-title">Code Generation</div>
+                <div class="card-desc">Write Python, Java, SQL code for any task. Example: <em>"Generate Python code for
+                        a CNN model"</em> → AI writes the full runnable code. Deep learning models (ANN, CNN, RNN)
+                    included.</div>
+            </div>
+            <div class="concept-card">
+                <div class="card-icon">🤖</div>
+                <div class="card-title">Chatbots &amp; Virtual Assistants</div>
+                <div class="card-desc">Answers questions, explains concepts, assists users. Example: <em>"Explain linear
+                        regression"</em> → detailed explanation. Includes tools like ChatGPT, Gemini.</div>
+            </div>
+            <div class="concept-card">
+                <div class="card-icon">🖼️</div>
+                <div class="card-title">Image Generation</div>
+                <div class="card-desc">Create realistic or artistic images from text descriptions. Different specialised
+                    models available: DALL·E, Midjourney, Stable Diffusion, Adobe Firefly.</div>
+            </div>
+            <div class="concept-card">
+                <div class="card-icon">🎵</div>
+                <div class="card-title">Audio &amp; Music Generation</div>
+                <div class="card-desc">Create songs, sound effects, voice-overs, and AI-generated background music for
+                    videos. Tools: MusicLM, ElevenLabs. Different models for different media types.</div>
+            </div>
+            <div class="concept-card">
+                <div class="card-icon">🏥</div>
+                <div class="card-title">Healthcare</div>
+                <div class="card-desc">Patient in ICU for 30 days → new doctor can't read all records → AI creates a
+                    <strong>draft patient summary</strong> covering condition, treatment, improvements. Assists report
+                    generation.</div>
+            </div>
+            <div class="concept-card">
+                <div class="card-icon">🎓</div>
+                <div class="card-title">Education</div>
+                <div class="card-desc">Generate notes, quiz questions, personalized learning material, and even PPTs.
+                    Example: <em>"Generate practice questions for NLP topics"</em> — instantly covers breadth.</div>
+            </div>
+            <div class="concept-card">
+                <div class="card-icon">📣</div>
+                <div class="card-title">Marketing &amp; Ads</div>
+                <div class="card-desc">Create ad copy, design promotional images (bank schemes, insurance plans),
+                    generate social media posts. Automates the creative cycle for any campaign.</div>
+            </div>
+            <div class="concept-card">
+                <div class="card-icon">🎬</div>
+                <div class="card-title">Video Generation</div>
+                <div class="card-desc">Full video creation from text prompts. Tools: OpenAI Sora, Runway. Short films,
+                    ad videos, educational content. Separate models specialised for video.</div>
+            </div>
+        </div>
+
+        <div class="highlight-box">
+            <p>❓ <strong style="color:var(--text)">Q: Can one model do audio + video + text?</strong><br><br>
+                Different specialised models are available for different content types: video generation (Runway, Sora)
+                · audio/music (MusicLM, ElevenLabs) · code (GitHub Copilot, Ghostwriter) · images (DALL·E, Midjourney).
+                Multimodal models like GPT-4o and Gemini handle multiple modalities in one model.</p>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- PART 04: AGENTIC AI -->
+    <section id="agentic">
+        <div class="section-label">Part 04</div>
+        <div class="section-title">Generative AI vs Agentic AI</div>
+        <p class="section-sub">Agentic AI is the next advancement — it goes beyond creating content to <strong>planning,
+                deciding, and executing multi-step tasks</strong> to achieve a goal.</p>
+
+        <!-- Chef Analogy -->
+        <div class="analogy-row">
+            <div class="analogy-box">
+                <div class="a-emoji">👨‍🍳</div>
+                <div class="a-title">Hotel Chef</div>
+                <div class="a-desc">Cooks based on your exact instruction. <em>"Make it spicy"</em> — he follows.
+                    Without your instruction, he doesn't act. One task at a time, on demand.</div>
+                <div class="a-type">= Generative AI</div>
+            </div>
+            <div class="analogy-box" style="border-color:rgba(67,233,123,.3);">
+                <div class="a-emoji">🧑‍💼</div>
+                <div class="a-title">Restaurant Manager</div>
+                <div class="a-desc"><em>"Lunch for delegates tomorrow."</em> — Manager prepares the menu, sources
+                    ingredients, assigns staff, ensures everything is served. A <strong>series of decisions and
+                        actions</strong> independently.</div>
+                <div class="a-type" style="color:var(--accent4);">= Agentic AI</div>
+            </div>
+        </div>
+
+        <!-- Vacation example -->
+        <div
+            style="background:var(--card); border:1px solid rgba(255,159,67,.3); border-radius:20px; padding:2rem; margin-bottom:2rem;">
+            <div style="font-size:1.4rem; margin-bottom:.5rem;">✈️</div>
+            <div
+                style="font-size:.7rem; font-weight:700; letter-spacing:.1em; color:var(--accent); margin-bottom:.5rem;">
+                EXAMPLE: VACATION PLANNING AGENT</div>
+            <p style="color:var(--muted); font-size:.88rem; margin-bottom:1rem;">You say: <em>"Plan a vacation to
+                    Goa"</em> — the Agentic AI:</p>
+            <div class="agent-steps">
+                <div class="agent-step">
+                    <div class="step-num">1</div>
+                    <div class="step-text"><strong>Searches for flights</strong> and compares prices</div>
+                </div>
+                <div class="agent-step">
+                    <div class="step-num">2</div>
+                    <div class="step-text"><strong>Compares hotel prices</strong> near tourist spots</div>
+                </div>
+                <div class="agent-step">
+                    <div class="step-num">3</div>
+                    <div class="step-text"><strong>Creates an itinerary</strong> with tourist attractions</div>
+                </div>
+                <div class="agent-step">
+                    <div class="step-num">4</div>
+                    <div class="step-text"><strong>Books reservations</strong> once you approve — all autonomously</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-grid">
+            <div class="concept-card" style="border-color:rgba(67,233,123,.25);">
+                <div class="card-icon">🛎️</div>
+                <div class="card-title">Customer Support Agent</div>
+                <div class="card-desc">Receives complaint → checks order status → processes refund → updates record.
+                    Companies are using AI agents to handle the entire customer support lifecycle automatically.</div>
+            </div>
+            <div class="concept-card" style="border-color:rgba(67,233,123,.25);">
+                <div class="card-icon">💻</div>
+                <div class="card-title">Software Dev Agent</div>
+                <div class="card-desc">Reads requirements → generates code → runs tests → fixes bugs → deploys the
+                    application. Example: <em>"Build a login page"</em> — fully automated development loop.</div>
+            </div>
+            <div class="concept-card" style="border-color:rgba(67,233,123,.25);">
+                <div class="card-icon">📊</div>
+                <div class="card-title">Data Analysis Agent</div>
+                <div class="card-desc"><em>"Why did sales drop last month?"</em> → collects sales data → performs
+                    analysis → creates charts → identifies causes → generates report → recommends next steps. All
+                    automated.</div>
+            </div>
+        </div>
+
+        <div class="highlight-box" style="margin-top:2rem;">
+            <p>🎯 <strong style="color:var(--text)">Key formula:</strong> Agentic AI = Generative AI knowledge
+                <strong>+</strong> Reasoning <strong>+</strong> Planning <strong>+</strong> Action execution. It
+                creates, decides, and acts to achieve a goal.</p>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- PART 05: CAREER -->
+    <section id="career">
+        <div class="section-label">Part 05</div>
+        <div class="section-title">AI &amp; Career Prospects</div>
+        <p class="section-sub">The AI job market is booming — and the right time to build these skills is now.</p>
+
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="stat-num">12M+</div>
+                <div class="stat-label">Estimated AI job openings in the next year (Data Science + AI/ML)</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-num">40%</div>
+                <div class="stat-label">Increase in AI-related job roles across industries</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-num">2.5–3<span style="font-size:1.2rem;">mo</span></div>
+                <div class="stat-label">Course duration — 20 modules on GenAI + Agentic AI</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-num">9–10<span style="font-size:1.2rem;">pm</span></div>
+                <div class="stat-label">Class timing, Mon–Fri (1 hr/day, hands-on)</div>
+            </div>
+        </div>
+
+        <!-- Will AI replace jobs? -->
+        <div
+            style="background:linear-gradient(135deg,rgba(255,159,67,.1),rgba(253,121,168,.07)); border:1px solid rgba(255,159,67,.3); border-radius:20px; padding:2rem; margin-bottom:2rem;">
+            <div style="font-size:1.4rem; margin-bottom:.5rem;">🤔</div>
+            <div
+                style="font-size:.7rem; font-weight:700; letter-spacing:.1em; color:var(--accent); margin-bottom:.75rem;">
+                COMMON CONCERN: "Will AI take my job?"</div>
+            <p style="color:var(--muted); font-size:.9rem; line-height:1.75;">
+                <strong style="color:var(--text)">Short answer: No — if you upskill.</strong><br><br>
+                AI is helping people do their jobs <em>faster</em> — not replacing them. A task that takes 10 hours can
+                be done in 3–5 hours with AI assistance. People with strong AI skills are the most in-demand,
+                highest-salaried professionals. Today there are very few people with a thorough command of these
+                technologies — the ones who build those skills now will have a significant competitive edge.<br><br>
+                <strong style="color:var(--text)">Available roles:</strong> AI Engineer · GenAI Engineer · Data
+                Scientist · ML Engineer · NLP Engineer · Data Analyst
+            </p>
+        </div>
+
+        <!-- Why Python -->
+        <div style="background:var(--card); border:1px solid var(--border); border-radius:20px; padding:2rem;">
+            <div style="font-size:1.4rem; margin-bottom:.5rem;">🐍</div>
+            <div
+                style="font-size:.7rem; font-weight:700; letter-spacing:.1em; color:var(--accent); margin-bottom:.75rem;">
+                WHY YOU STILL NEED TO LEARN PYTHON</div>
+            <p style="color:var(--muted); font-size:.9rem; line-height:1.75; max-width:680px;">
+                <em>"AI generates code — why learn Python?"</em><br><br>
+                <strong style="color:var(--text)">Python is the mother tongue of AI.</strong> If AI generates Tamil code
+                and you don't know Tamil, you can't read it. If AI generates Python code and you don't know Python, you
+                can't understand, debug, or validate it. You need to know: what is a function? a module? a class? a
+                list? AI makes work <em>faster</em> — it doesn't replace the need for foundational knowledge.
+            </p>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- PART 06: TOOLS -->
+    <section id="tools">
+        <div class="section-label">Part 06</div>
+        <div class="section-title">Course Tools &amp; Ecosystem</div>
+        <p class="section-sub">Everything you'll work with across the 20-module course — from LLMs to agent frameworks
+            to cloud deployment.</p>
+
+        <div class="card-grid">
+            <div class="concept-card">
+                <div class="card-icon">🧠</div>
+                <div class="card-title">LLM Models (APIs)</div>
+                <div class="card-desc">Work with production LLMs:</div>
+                <div class="chip-row"><span class="chip chip-o">GPT (OpenAI)</span><span
+                        class="chip chip-o">Gemini</span><span class="chip chip-o">Claude</span><span
+                        class="chip chip-o">LLaMA (Meta)</span><span class="chip chip-o">Mistral</span></div>
+            </div>
+            <div class="concept-card">
+                <div class="card-icon">🤖</div>
+                <div class="card-title">Agentic AI Frameworks</div>
+                <div class="card-desc">Multi-agent orchestration tooling:</div>
+                <div class="chip-row"><span class="chip chip-g">LangChain</span><span
+                        class="chip chip-g">LangGraph</span><span class="chip chip-g">AutoGPT</span><span
+                        class="chip chip-g">CrewAI</span><span class="chip chip-g">AutoGen</span></div>
+            </div>
+            <div class="concept-card">
+                <div class="card-icon">📚</div>
+                <div class="card-title">ML / DL Libraries</div>
+                <div class="card-desc">Model training and fine-tuning:</div>
+                <div class="chip-row"><span class="chip chip-b">TensorFlow</span><span
+                        class="chip chip-b">PyTorch</span><span class="chip chip-b">HuggingFace</span></div>
+            </div>
+            <div class="concept-card">
+                <div class="card-icon">🗄️</div>
+                <div class="card-title">Vector Databases</div>
+                <div class="card-desc">For RAG and semantic search:</div>
+                <div class="chip-row"><span class="chip chip-p">Pinecone</span><span
+                        class="chip chip-p">Weaviate</span><span class="chip chip-p">Chroma</span></div>
+            </div>
+            <div class="concept-card">
+                <div class="card-icon">💻</div>
+                <div class="card-title">Dev Environments</div>
+                <div class="card-desc">Where code gets written and run:</div>
+                <div class="chip-row"><span class="chip chip-o">Jupyter Notebook</span><span class="chip chip-o">Google
+                        Colab</span><span class="chip chip-o">VS Code</span></div>
+            </div>
+            <div class="concept-card">
+                <div class="card-icon">☁️</div>
+                <div class="card-title">Cloud AI Platforms</div>
+                <div class="card-desc">Deployment and managed services:</div>
+                <div class="chip-row"><span class="chip chip-b">GCP Vertex AI</span><span class="chip chip-b">Azure
+                        AI</span><span class="chip chip-b">AWS AI</span><span class="chip chip-b">Apache Airflow</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course offerings -->
+        <div
+            style="background:var(--card); border:1px solid var(--border); border-radius:20px; padding:2rem; margin-top:2rem;">
+            <div
+                style="font-size:.7rem; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--accent); margin-bottom:1.5rem;">
+                What You Get With The Course</div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1rem;">
+                <div style="color:var(--muted); font-size:.85rem;">📹 Live session recordings to Google Drive</div>
+                <div style="color:var(--muted); font-size:.85rem;">📝 Soft copy notes shared daily</div>
+                <div style="color:var(--muted); font-size:.85rem;">💬 WhatsApp group for Q&amp;A</div>
+                <div style="color:var(--muted); font-size:.85rem;">❓ 200+ interview questions (GenAI + Agentic)</div>
+                <div style="color:var(--muted); font-size:.85rem;">🛠 Hands-on sessions — do tasks along with instructor
+                </div>
+                <div style="color:var(--muted); font-size:.85rem;">🐍 Python full course video access</div>
+                <div style="color:var(--muted); font-size:.85rem;">🐬 MySQL full course video access</div>
+                <div style="color:var(--muted); font-size:.85rem;">🐧 Linux full course video access</div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+        <div class="takeaway">
+            <div style="font-size:3rem;margin-bottom:1rem;">🚀</div>
+            <h2>The Big Picture</h2>
+            <p>AI evolved from rule-based systems → machine learning → deep learning → <strong>Generative AI</strong>
+                (creates new content) → <strong>Agentic AI</strong> (plans and acts autonomously). Python is the
+                essential language bridging you to all of it. AI isn't replacing skilled people — it's making skilled
+                people dramatically more productive. This is the right time to build command over these technologies.
+            </p>
+        </div>
+    </section>
+
+    <footer>
+        <p>Lecture 1 notes · GenAI &amp; Agentic AI Intro · Visualised for educational purposes &nbsp;|&nbsp; 2026</p>
+    </footer>
+
+    <script>
+        window.addEventListener('scroll', () => {
+            const scrolled = window.scrollY;
+            const total = document.documentElement.scrollHeight - window.innerHeight;
+            document.getElementById('progress-bar').style.width = (scrolled / total * 100) + '%';
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => entry.target.classList.add('visible'), entry.target.dataset.delay || 0);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.concept-card, .tl-item, .spec-box, .stat-box, .agent-step').forEach((el, i) => {
+            el.dataset.delay = (i % 5) * 80;
+            observer.observe(el);
+        });
+    </script>
+</body>
+
+</html>

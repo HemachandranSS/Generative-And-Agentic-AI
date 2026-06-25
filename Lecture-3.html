@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generative AI & LLMs — Lecture 3 Notes</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Fira+Code:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #0d0e1a;
+            --surface: #13152a;
+            --card: #1c1f3a;
+            --accent: #7c5cfc;
+            --accent2: #00d2ff;
+            --accent3: #ff6b6b;
+            --accent4: #43e97b;
+            --accent5: #ffd166;
+            --text: #e8eaf6;
+            --muted: #8892b0;
+            --border: rgba(124, 92, 252, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* ─── HERO ─── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: radial-gradient(ellipse at 50% 0%, #1d0d5c 0%, var(--bg) 65%);
+            position: relative;
+            overflow: hidden;
+            padding: 2rem;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.35;
+            animation: floatOrb 8s ease-in-out infinite alternate;
+        }
+
+        .orb-1 {
+            width: 420px;
+            height: 420px;
+            background: var(--accent);
+            top: -120px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: var(--accent2);
+            bottom: -80px;
+            right: -60px;
+            animation-delay: 2s;
+        }
+
+        .orb-3 {
+            width: 220px;
+            height: 220px;
+            background: var(--accent5);
+            top: 40%;
+            left: 60%;
+            animation-delay: 4s;
+        }
+
+        @keyframes floatOrb {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(30px, 40px) scale(1.08);
+            }
+        }
+
+        .hero-chip {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff;
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            padding: .35rem 1rem;
+            border-radius: 999px;
+            margin-bottom: 1.5rem;
+            animation: fadeDown .8s ease both;
+        }
+
+        @keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.4rem, 6vw, 5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            animation: fadeDown 1s ease .15s both;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(90deg, var(--accent), var(--accent5));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            margin-top: 1.2rem;
+            color: var(--muted);
+            font-size: 1.1rem;
+            max-width: 580px;
+            line-height: 1.7;
+            animation: fadeUp 1s ease .35s both;
+        }
+
+        .hero-meta {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeUp 1s ease .5s both;
+        }
+
+        .hero-meta span {
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            font-size: .8rem;
+            color: var(--muted);
+            background: rgba(255, 255, 255, .05);
+            padding: .35rem .9rem;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+        }
+
+        .scroll-hint {
+            margin-top: 3rem;
+            font-size: .85rem;
+            color: var(--muted);
+            animation: fadeUp 1s ease .65s both;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        .scroll-hint::after {
+            content: '▼';
+            animation: bounce 1.5s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0)
+            }
+
+            50% {
+                transform: translateY(6px)
+            }
+        }
+
+        /* ─── SHARED SECTION WRAPPER ─── */
+        section {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 5rem 1.5rem;
+        }
+
+        .section-label {
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: var(--accent2);
+            margin-bottom: .6rem;
+        }
+
+        .section-title {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        .section-sub {
+            color: var(--muted);
+            font-size: 1rem;
+            line-height: 1.7;
+            max-width: 720px;
+            margin-bottom: 3rem;
+        }
+
+        /* ─── TIMELINE ─── */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: .5rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--accent), var(--accent2), var(--accent4));
+        }
+
+        .tl-item {
+            position: relative;
+            margin-bottom: 2.5rem;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity .6s ease, transform .6s ease;
+        }
+
+        .tl-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .tl-dot {
+            position: absolute;
+            left: -1.9rem;
+            top: .3rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 2px solid var(--bg);
+            box-shadow: 0 0 12px var(--accent);
+        }
+
+        .tl-year {
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--accent2);
+            margin-bottom: .25rem;
+        }
+
+        .tl-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: .35rem;
+        }
+
+        .tl-desc {
+            color: var(--muted);
+            font-size: .9rem;
+            line-height: 1.65;
+        }
+
+        /* ─── CONCEPT CARDS ─── */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .concept-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.6rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform .3s ease, box-shadow .3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .concept-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity .6s ease, transform .6s ease, box-shadow .3s ease;
+        }
+
+        .concept-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 50px rgba(124, 92, 252, .25);
+        }
+
+        .concept-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top left, rgba(124, 92, 252, .1), transparent 60%);
+            pointer-events: none;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-bottom: .8rem;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: .5rem;
+        }
+
+        .card-desc {
+            color: var(--muted);
+            font-size: .87rem;
+            line-height: 1.65;
+        }
+
+        /* ─── COMPARISON TABLE ─── */
+        .compare-wrap {
+            overflow-x: auto;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .9rem;
+        }
+
+        thead tr {
+            background: linear-gradient(90deg, var(--accent) 0%, #4b2fc4 100%);
+        }
+
+        thead th {
+            padding: 1rem 1.4rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: .85rem;
+            letter-spacing: .06em;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background .2s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: rgba(124, 92, 252, .07);
+        }
+
+        tbody td {
+            padding: .9rem 1.4rem;
+            color: var(--muted);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .tag-good {
+            display: inline-block;
+            background: rgba(67, 233, 123, .15);
+            color: var(--accent4);
+            font-size: .72rem;
+            font-weight: 700;
+            padding: .15rem .5rem;
+            border-radius: 6px;
+        }
+
+        .tag-bad {
+            display: inline-block;
+            background: rgba(255, 107, 107, .15);
+            color: var(--accent3);
+            font-size: .72rem;
+            font-weight: 700;
+            padding: .15rem .5rem;
+            border-radius: 6px;
+        }
+
+        /* ─── Gen vs Discriminative boxes ─── */
+        .spectrum-row {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .spec-box {
+            flex: 1;
+            min-width: 260px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: transform .3s;
+            opacity: 0;
+            transform: scale(.95);
+        }
+
+        .spec-box.visible {
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity .6s ease, transform .6s ease;
+        }
+
+        .spec-box:hover {
+            transform: scale(1.03);
+        }
+
+        .spec-box .badge {
+            display: inline-block;
+            padding: .3rem .85rem;
+            border-radius: 999px;
+            font-size: .73rem;
+            font-weight: 700;
+            letter-spacing: .05em;
+            margin-bottom: 1rem;
+        }
+
+        .gen-badge {
+            background: rgba(124, 92, 252, .2);
+            color: var(--accent);
+        }
+
+        .dis-badge {
+            background: rgba(0, 210, 255, .15);
+            color: var(--accent2);
+        }
+
+        .spec-box h3 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            margin-bottom: .6rem;
+        }
+
+        .spec-box p {
+            color: var(--muted);
+            font-size: .88rem;
+            line-height: 1.65;
+        }
+
+        .spec-box ul {
+            color: var(--muted);
+            font-size: .88rem;
+            line-height: 1.65;
+            padding-left: 1.2rem;
+            margin-top: .6rem;
+        }
+
+        .spec-box ul li {
+            margin-bottom: .3rem;
+        }
+
+        /* ─── MODEL GALLERY ─── */
+        .model-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .model-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.4rem;
+            text-align: center;
+            transition: transform .3s, box-shadow .3s;
+            opacity: 0;
+            transform: scale(.9);
+        }
+
+        .model-card.visible {
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity .5s ease, transform .5s ease, box-shadow .3s;
+        }
+
+        .model-card:hover {
+            transform: scale(1.06);
+            box-shadow: 0 16px 40px rgba(124, 92, 252, .3);
+        }
+
+        .model-emoji {
+            font-size: 2.2rem;
+            margin-bottom: .5rem;
+        }
+
+        .model-name {
+            font-size: 1rem;
+            font-weight: 800;
+            margin-bottom: .25rem;
+        }
+
+        .model-tag {
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            margin-bottom: .4rem;
+            display: inline-block;
+            padding: .2rem .7rem;
+            border-radius: 999px;
+        }
+
+        .model-desc {
+            font-size: .78rem;
+            color: var(--muted);
+            line-height: 1.5;
+            margin-top: .4rem;
+        }
+
+        .tag-text {
+            background: rgba(124, 92, 252, .2);
+            color: var(--accent);
+        }
+
+        .tag-image {
+            background: rgba(255, 107, 107, .15);
+            color: var(--accent3);
+        }
+
+        .tag-audio {
+            background: rgba(0, 210, 255, .15);
+            color: var(--accent2);
+        }
+
+        .tag-video {
+            background: rgba(67, 233, 123, .15);
+            color: var(--accent4);
+        }
+
+        .tag-code {
+            background: rgba(255, 209, 102, .15);
+            color: var(--accent5);
+        }
+
+        /* ─── FLOW DIAGRAM ─── */
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: .5rem;
+            padding: 2rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            margin-bottom: 2rem;
+        }
+
+        .flow-box {
+            background: rgba(124, 92, 252, .12);
+            border: 1.5px solid rgba(124, 92, 252, .35);
+            border-radius: 12px;
+            padding: .7rem 1.2rem;
+            font-size: .85rem;
+            font-weight: 600;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .flow-arrow {
+            color: var(--accent);
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .flow-box.highlight {
+            background: linear-gradient(135deg, rgba(124, 92, 252, .3), rgba(0, 210, 255, .2));
+            border-color: var(--accent);
+            color: var(--text);
+        }
+
+        /* ─── MULTIMODAL VISUAL ─── */
+        .multimodal-hub {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 2.5rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+        }
+
+        .hub-center {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: .8rem;
+            font-weight: 800;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(124, 92, 252, .5);
+            animation: pulseHub 3s ease-in-out infinite;
+        }
+
+        @keyframes pulseHub {
+
+            0%,
+            100% {
+                box-shadow: 0 0 30px rgba(124, 92, 252, .4);
+            }
+
+            50% {
+                box-shadow: 0 0 60px rgba(124, 92, 252, .7);
+            }
+        }
+
+        .hub-spokes {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .spoke-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .4rem;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1rem 1.4rem;
+            min-width: 110px;
+            text-align: center;
+            font-size: .8rem;
+            transition: transform .3s, box-shadow .3s;
+        }
+
+        .spoke-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 210, 255, .15);
+        }
+
+        .spoke-emoji {
+            font-size: 1.8rem;
+        }
+
+        .spoke-label {
+            font-weight: 700;
+            font-size: .82rem;
+        }
+
+        .spoke-example {
+            font-size: .72rem;
+            color: var(--muted);
+        }
+
+        /* ─── KEY TAKEAWAY ─── */
+        .takeaway {
+            background: linear-gradient(135deg, rgba(124, 92, 252, .15), rgba(0, 210, 255, .1));
+            border: 1px solid rgba(124, 92, 252, .4);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+        }
+
+        .takeaway h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .takeaway p {
+            color: var(--muted);
+            font-size: 1rem;
+            line-height: 1.75;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* ─── HIGHLIGHT BOX ─── */
+        .highlight-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.6rem;
+            margin-top: 1.5rem;
+        }
+
+        .highlight-box p {
+            color: var(--muted);
+            font-size: .9rem;
+            line-height: 1.7;
+        }
+
+        /* ─── FOOTER ─── */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--muted);
+            font-size: .82rem;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ─── DIVIDER ─── */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+            margin: 0 auto;
+            max-width: 900px;
+        }
+
+        /* ─── PROGRESS BAR ─── */
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent5));
+            z-index: 999;
+            transition: width .1s linear;
+        }
+
+        /* ─── NAV ─── */
+        nav {
+            position: fixed;
+            top: 8px;
+            right: 1rem;
+            z-index: 998;
+            display: flex;
+            gap: .5rem;
+        }
+
+        nav a {
+            font-size: .72rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--muted);
+            background: rgba(13, 14, 26, .8);
+            border: 1px solid var(--border);
+            padding: .3rem .75rem;
+            border-radius: 999px;
+            backdrop-filter: blur(8px);
+            transition: color .2s, border-color .2s;
+        }
+
+        nav a:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="progress-bar" style="width:0%"></div>
+
+    <nav>
+        <a href="#evolution">Evolution</a>
+        <a href="#genai">Gen AI</a>
+        <a href="#compare">Gen vs Disc</a>
+        <a href="#types">5 Types</a>
+        <a href="#transformers">Models</a>
+        <a href="#multimodal">Multimodal</a>
+    </nav>
+
+    <!-- HERO -->
+    <div class="hero">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="hero-chip">🎓 AI / LLM Lecture Notes</div>
+        <h1>Generative AI<br><span>&amp; Large Language Models</span></h1>
+        <p>From rule-based systems to multimodal AI — understanding how modern generative AI works, its types, and how
+            it differs from traditional discriminative approaches.</p>
+        <div class="hero-meta">
+            <span>📅 Lecture 3</span>
+            <span>🗂 5 Topics</span>
+            <span>⏱ ~65 min</span>
+        </div>
+        <div class="scroll-hint">Scroll to explore</div>
+    </div>
+
+    <!-- ─── SECTION 1: AI EVOLUTION ─── -->
+    <section id="evolution">
+        <div class="section-label">Part 01</div>
+        <div class="section-title">Evolution of Artificial Intelligence</div>
+        <p class="section-sub">AI didn't leap straight to ChatGPT — it evolved through decades of breakthroughs in
+            hardware, data, and algorithms.</p>
+        <div class="timeline">
+            <div class="tl-item">
+                <div class="tl-dot" style="background:var(--muted)"></div>
+                <div class="tl-year">Early Days</div>
+                <div class="tl-title">Rule-Based &amp; Symbolic Approaches</div>
+                <div class="tl-desc">Systems like decision trees and symbolic programming followed hardcoded rules. No
+                    learning ability — every behaviour was explicitly programmed by engineers.</div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-dot" style="background:var(--accent3)"></div>
+                <div class="tl-year">1990s – 2000s</div>
+                <div class="tl-title">Machine Learning Revolution</div>
+                <div class="tl-desc">AI shifted from rule-based to <strong>learning from data</strong>. Key
+                    developments: statistical models, neural networks, data mining (extracting useful insights from raw
+                    data). Systems improved by observing patterns in existing data.</div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-dot" style="background:var(--accent2)"></div>
+                <div class="tl-year">Big Data Era</div>
+                <div class="tl-title">Big Data + Distributed Computing</div>
+                <div class="tl-desc">Massive data generation enabled a shift from <strong>monolithic
+                        computation</strong> (one system for all) to <strong>distributed / parallel processing</strong>
+                    (multiple systems sharing a single file and processing it simultaneously). GPUs and internet-scale
+                    computation arrived.</div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-dot" style="background:var(--accent)"></div>
+                <div class="tl-year">Deep Learning</div>
+                <div class="tl-title">Deep Learning Breakthroughs</div>
+                <div class="tl-desc">Deep learning techniques powered: <strong>Image recognition</strong> ·
+                    <strong>Speech recognition</strong> · <strong>Language translation</strong> · <strong>Self-driving
+                        technology</strong>. Although deep learning existed earlier, it only became mainstream after
+                    big-data and GPU availability.</div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-dot" style="background:var(--accent5)"></div>
+                <div class="tl-year">2020+</div>
+                <div class="tl-title">Large Language Models (LLMs)</div>
+                <div class="tl-desc">Modern AI systems can now <strong>generate text, create images, write code, and
+                        compose music</strong> on their own. LLMs like GPT, Gemini, and Claude became mainstream from
+                    2020 onwards, powered by the Transformer architecture.</div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-dot" style="background:var(--accent4)"></div>
+                <div class="tl-year">Today</div>
+                <div class="tl-title">Agentic AI</div>
+                <div class="tl-desc">The next frontier: AI <strong>agents</strong> that can autonomously plan, decide,
+                    and execute multi-step tasks — combining generation with reasoning and tool use. Still evolving
+                    rapidly.</div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ─── SECTION 2: WHAT IS GENERATIVE AI ─── -->
+    <section id="genai">
+        <div class="section-label">Part 02</div>
+        <div class="section-title">What Is Generative AI?</div>
+        <p class="section-sub">A class of AI systems that <em>create new content</em> — text, images, code, or music —
+            by learning patterns, relationships, and structures from large amounts of training data.</p>
+
+        <div class="flow-diagram">
+            <div class="flow-box">📦<br>Training Data<br><small style="color:var(--muted)">(text, images, audio)</small>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-box">🧠<br>Learns Patterns<br><small style="color:var(--muted)">relations &amp;
+                    structures</small></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-box highlight">✍️<br>User Prompt<br><small>"Create a marketing email…"</small></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-box">🎉<br>New Content<br><small style="color:var(--muted)">text / image / code /
+                    music</small></div>
+        </div>
+
+        <div class="card-grid">
+            <div class="concept-card">
+                <div class="card-icon">📝</div>
+                <div class="card-title">Content Writing</div>
+                <div class="card-desc">Emails, blogs, reports, summaries. Provide a prompt — the AI writes a full,
+                    polished draft instantly.</div>
+            </div>
+            <div class="concept-card">
+                <div class="card-icon">💻</div>
+                <div class="card-title">Code Generation</div>
+                <div class="card-desc">Ask for Python code for linear regression — the AI generates the complete,
+                    runnable code. Widely used in software development.</div>
+            </div>
+            <div class="concept-card">
+                <div class="card-icon">🎵</div>
+                <div class="card-title">Audio &amp; Music</div>
+                <div class="card-desc">Generates background music for videos, speech synthesis, and sound effects. Tools
+                    like Suno AI create music from text prompts.</div>
+            </div>
+            <div class="concept-card">
+                <div class="card-icon">🏥</div>
+                <div class="card-title">Healthcare</div>
+                <div class="card-desc">Creates draft patient summaries for doctors, assists in medical report
+                    generation, and helps with personalized treatment documentation.</div>
+            </div>
+            <div class="concept-card">
+                <div class="card-icon">🎓</div>
+                <div class="card-title">Education</div>
+                <div class="card-desc">Generates personalized learning material, notes, and quizzes tailored to
+                    individual student needs and curriculum topics.</div>
+            </div>
+            <div class="concept-card">
+                <div class="card-icon">📣</div>
+                <div class="card-title">Marketing &amp; Ads</div>
+                <div class="card-desc">Creates ad copy, promotional images, social media posts, and brand visuals.
+                    Reduces the creative cycle from days to minutes.</div>
+            </div>
+        </div>
+
+        <div class="highlight-box" style="margin-top:2rem;">
+            <p>💡 <strong style="color:var(--text)">Key distinction:</strong> Generative AI <em>resembles human-made
+                    work</em> — instead of just <em>analyzing or classifying</em> existing data, it <em>produces new
+                    data</em> based on what it has learned. The output is novel, not a copy.</p>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ─── SECTION 3: GENERATIVE vs DISCRIMINATIVE ─── -->
+    <section id="compare">
+        <div class="section-label">Part 03</div>
+        <div class="section-title">Generative vs Discriminative AI</div>
+        <p class="section-sub">Two fundamentally different paradigms — one creates, the other classifies.</p>
+
+        <div class="spectrum-row" style="margin-bottom:2rem;">
+            <div class="spec-box">
+                <span class="badge gen-badge">🎨 Generative AI</span>
+                <h3>Creates New Data</h3>
+                <p>Purpose: generates new content based on a learned understanding of patterns.</p>
+                <ul>
+                    <li><strong>Output:</strong> Text · Image · Audio · Code · Video</li>
+                    <li><strong>Example input:</strong> "Create a marketing email for a new smartphone launch"</li>
+                    <li><strong>Example output:</strong> Full email — subject line, body, call-to-action — generated
+                    </li>
+                    <li>ChatGPT · DALL·E · Stable Diffusion · Gemini</li>
+                </ul>
+            </div>
+            <div class="spec-box">
+                <span class="badge dis-badge">🔍 Discriminative AI</span>
+                <h3>Classifies Existing Data</h3>
+                <p>Purpose: predicts, labels, or categorises data that already exists.</p>
+                <ul>
+                    <li><strong>Output:</strong> Labels · Categories · Predictions · Scores</li>
+                    <li><strong>Example input:</strong> An email fed to a spam classifier</li>
+                    <li><strong>Example output:</strong> "Spam" or "Not Spam" — binary classification</li>
+                    <li>Logistic Regression · Decision Tree · CNN</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="compare-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>🎨 Generative AI</th>
+                        <th>🔍 Discriminative AI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Main Purpose</td>
+                        <td>Create new data</td>
+                        <td>Classify / predict</td>
+                    </tr>
+                    <tr>
+                        <td>Output Type</td>
+                        <td>Text, image, audio, code</td>
+                        <td>Labels, scores, categories</td>
+                    </tr>
+                    <tr>
+                        <td>Example Use Case</td>
+                        <td>Writing a marketing email <span class="tag-good">Creative</span></td>
+                        <td>Spam detection, fraud detection <span class="tag-good">Analytical</span></td>
+                    </tr>
+                    <tr>
+                        <td>Other Use Cases</td>
+                        <td>Image creation, chatbots, summarisation, translation</td>
+                        <td>Sentiment analysis, question answering, fraud detection</td>
+                    </tr>
+                    <tr>
+                        <td>Model Examples</td>
+                        <td>GPT, DALL·E, Gemini, Claude, Stable Diffusion</td>
+                        <td>Logistic Regression, Decision Tree, CNN, SVM</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ─── SECTION 4: FIVE TYPES OF GENERATIVE AI ─── -->
+    <section id="types">
+        <div class="section-label">Part 04</div>
+        <div class="section-title">Five Types of Generative AI Models</div>
+        <p class="section-sub">Generative AI isn't one-size-fits-all — different model families specialise in generating
+            different types of content.</p>
+
+        <div class="model-gallery">
+
+            <!-- TEXT -->
+            <div class="model-card">
+                <div class="model-emoji">📝</div>
+                <div class="model-name">Text Generation</div>
+                <span class="model-tag tag-text">Language Models</span>
+                <div class="model-desc">
+                    <strong>Models:</strong> GPT-4/5, Claude, Gemini, T5<br><br>
+                    <strong>Applications:</strong> Chatbots · Summarisation · Translation · Content creation · Question
+                    answering
+                </div>
+            </div>
+
+            <!-- IMAGE -->
+            <div class="model-card">
+                <div class="model-emoji">🖼️</div>
+                <div class="model-name">Image Generation</div>
+                <span class="model-tag tag-image">Diffusion Models</span>
+                <div class="model-desc">
+                    <strong>Models:</strong> DALL·E · Midjourney · Stable Diffusion<br><br>
+                    <strong>Applications:</strong> Marketing creatives · Art creation · Logo design · Product design
+                    visuals
+                </div>
+            </div>
+
+            <!-- AUDIO -->
+            <div class="model-card">
+                <div class="model-emoji">🎵</div>
+                <div class="model-name">Audio Generation</div>
+                <span class="model-tag tag-audio">Audio Models</span>
+                <div class="model-desc">
+                    <strong>Models:</strong> Suno AI · ElevenLabs · AudioLM<br><br>
+                    <strong>Applications:</strong> Music generation · Speech synthesis · Text-to-speech · Speech
+                    analysis
+                </div>
+            </div>
+
+            <!-- VIDEO -->
+            <div class="model-card">
+                <div class="model-emoji">🎬</div>
+                <div class="model-name">Video Generation</div>
+                <span class="model-tag tag-video">Video Models</span>
+                <div class="model-desc">
+                    <strong>Models:</strong> Sora (OpenAI) · Runway · Pika<br><br>
+                    <strong>Applications:</strong> Advertisements · Educational content · Animations · Video creation
+                </div>
+            </div>
+
+            <!-- CODE -->
+            <div class="model-card">
+                <div class="model-emoji">💻</div>
+                <div class="model-name">Code Generation</div>
+                <span class="model-tag tag-code">Code Models</span>
+                <div class="model-desc">
+                    <strong>Models:</strong> GitHub Copilot · CodeLlama · GPT-4<br><br>
+                    <strong>Applications:</strong> Software development · Code completion · Bug fixing · Code review
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ─── SECTION 5: TRANSFORMER MODELS ─── -->
+    <section id="transformers">
+        <div class="section-label">Part 05</div>
+        <div class="section-title">Key Transformer Model Families</div>
+        <p class="section-sub">All modern generative AI is built on the Transformer architecture. Three major variant
+            families serve different purposes.</p>
+
+        <div class="spectrum-row" style="flex-wrap:wrap; gap:1.5rem; margin-bottom:2rem;">
+
+            <!-- BERT -->
+            <div class="spec-box" style="min-width:220px; flex:1;">
+                <span class="badge" style="background:rgba(0,210,255,.15); color:var(--accent2);">🔵 BERT</span>
+                <h3>Bidirectional Understanding</h3>
+                <p><strong>B</strong>idirectional <strong>E</strong>ncoder <strong>R</strong>epresentations from
+                    <strong>T</strong>ransformers. Reads text in <em>both directions</em> to understand the full context
+                    of a word.</p>
+                <ul>
+                    <li>Sentiment analysis</li>
+                    <li>Question answering</li>
+                    <li>Text classification</li>
+                </ul>
+                <div
+                    style="margin-top:1rem; background:rgba(0,210,255,.07); border-radius:10px; padding:.8rem; font-size:.8rem; color:var(--muted);">
+                    <strong style="color:var(--accent2)">Example:</strong> "The <em>target</em> is near the
+                    <em>river</em>." — BERT uses surrounding words to understand the meaning of "target" (a place, not a
+                    goal).
+                </div>
+            </div>
+
+            <!-- GPT -->
+            <div class="spec-box" style="min-width:220px; flex:1;">
+                <span class="badge gen-badge">🟣 GPT Family</span>
+                <h3>Content Generation</h3>
+                <p><strong>G</strong>enerative <strong>P</strong>re-trained <strong>T</strong>ransformer. Generates text
+                    by predicting the next token, left-to-right, enabling fluid, coherent long-form output.</p>
+                <ul>
+                    <li>Content generation</li>
+                    <li>Coding assistance</li>
+                    <li>Chatbots &amp; assistants</li>
+                </ul>
+                <div
+                    style="margin-top:1rem; background:rgba(124,92,252,.07); border-radius:10px; padding:.8rem; font-size:.8rem; color:var(--muted);">
+                    <strong style="color:var(--accent)">Examples:</strong> GPT-3/4/4o/o4-mini, ChatGPT (OpenAI), Claude
+                    (Anthropic), Gemini (Google)
+                </div>
+            </div>
+
+            <!-- T5 -->
+            <div class="spec-box" style="min-width:220px; flex:1;">
+                <span class="badge" style="background:rgba(67,233,123,.15); color:var(--accent4);">🟢 T5</span>
+                <h3>Text-to-Text Transfer</h3>
+                <p><strong>T</strong>ext-<strong>t</strong>o-<strong>T</strong>ext <strong>T</strong>ransfer
+                    <strong>T</strong>ransformer. Frames <em>every NLP task</em> as a text generation problem — input
+                    text in, output text out.</p>
+                <ul>
+                    <li>Translation (English → Hindi / French)</li>
+                    <li>Summarisation</li>
+                    <li>Question answering</li>
+                </ul>
+                <div
+                    style="margin-top:1rem; background:rgba(67,233,123,.07); border-radius:10px; padding:.8rem; font-size:.8rem; color:var(--muted);">
+                    <strong style="color:var(--accent4)">Key idea:</strong> Even classification is reformulated as
+                    "classify: [text]" → "positive" (text in, text out).
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ─── SECTION 6: MULTIMODAL MODELS ─── -->
+    <section id="multimodal">
+        <div class="section-label">Part 06</div>
+        <div class="section-title">Multimodal AI Models</div>
+        <p class="section-sub">Multimodal models can <strong>understand, process, and generate</strong> information
+            across multiple types of data simultaneously — not just text, but images, audio, and video too.</p>
+
+        <div class="multimodal-hub">
+            <div class="hub-center">🧠<br>Multimodal<br>AI Model</div>
+            <div class="hub-spokes">
+                <div class="spoke-item">
+                    <div class="spoke-emoji">📝</div>
+                    <div class="spoke-label">Text</div>
+                    <div class="spoke-example">Documents, chat messages, articles</div>
+                </div>
+                <div class="spoke-item">
+                    <div class="spoke-emoji">🖼️</div>
+                    <div class="spoke-label">Images</div>
+                    <div class="spoke-example">Photos, diagrams, scans</div>
+                </div>
+                <div class="spoke-item">
+                    <div class="spoke-emoji">🎵</div>
+                    <div class="spoke-label">Audio</div>
+                    <div class="spoke-example">Speech, music, sounds</div>
+                </div>
+                <div class="spoke-item">
+                    <div class="spoke-emoji">🎬</div>
+                    <div class="spoke-label">Video</div>
+                    <div class="spoke-example">Movies, footages, clips</div>
+                </div>
+                <div class="spoke-item">
+                    <div class="spoke-emoji">📡</div>
+                    <div class="spoke-label">Sensor Data</div>
+                    <div class="spoke-example">IoT devices, medical sensors</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Examples table -->
+        <div class="compare-wrap" style="margin-top:2rem;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Company</th>
+                        <th>Supported Modalities</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>ChatGPT-4o / GPT-4.5</td>
+                        <td>OpenAI</td>
+                        <td>Text · Image · Audio</td>
+                    </tr>
+                    <tr>
+                        <td>Gemini</td>
+                        <td>Google</td>
+                        <td>Text · Image · Audio · Video</td>
+                    </tr>
+                    <tr>
+                        <td>Claude</td>
+                        <td>Anthropic</td>
+                        <td>Text · Image</td>
+                    </tr>
+                    <tr>
+                        <td>DALL·E</td>
+                        <td>OpenAI</td>
+                        <td>Text → Image generation</td>
+                    </tr>
+                    <tr>
+                        <td>ImageBind</td>
+                        <td>Meta</td>
+                        <td>Text · Image · Audio</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Unimodal vs Multimodal -->
+        <div class="spectrum-row" style="margin-top:2rem; gap:1.5rem;">
+            <div class="spec-box" style="min-width:240px;">
+                <span class="badge dis-badge">📄 Unimodal</span>
+                <h3>Single Data Type</h3>
+                <p>Works with only <strong>one modality</strong> of data at a time.</p>
+                <ul>
+                    <li>Text-only: classic language models</li>
+                    <li>Image-only: CNNs for vision</li>
+                    <li>Audio-only: speech recognition systems</li>
+                </ul>
+            </div>
+            <div class="spec-box" style="min-width:240px;">
+                <span class="badge gen-badge">🌐 Multimodal</span>
+                <h3>Multiple Data Types</h3>
+                <p><strong>Combines information</strong> from different sources simultaneously for richer understanding.
+                </p>
+                <ul>
+                    <li>Medical diagnosis: MRI scan + patient blood report → prediction &amp; explanation</li>
+                    <li>Video captioning: video frames + audio → text description</li>
+                    <li>Visual Q&amp;A: image + question → answer</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Medical example highlight -->
+        <div class="highlight-box" style="margin-top:2rem;">
+            <p>🏥 <strong style="color:var(--text)">Medical Diagnosis Example (from lecture):</strong><br><br>
+                <strong>Input:</strong> MRI scan (image) + Patient blood report (text)<br>
+                <strong>Output:</strong> Prediction (diagnosis) + Explanation report<br><br>
+                A multimodal AI can combine visual imaging data with structured medical records simultaneously —
+                something a unimodal model simply cannot do.
+            </p>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ─── TAKEAWAY ─── -->
+    <section>
+        <div class="takeaway">
+            <div class="card-icon" style="font-size:3rem;margin-bottom:1rem;">🚀</div>
+            <h2>The Big Picture</h2>
+            <p>AI evolved from rigid rule-based systems → to statistical machine learning → to deep learning → to
+                <strong>Generative AI</strong>. Unlike traditional AI that analyzes and classifies, Generative AI
+                <strong>creates new content</strong> — text, images, code, audio, and video — based on patterns learned
+                from massive datasets. The five model types (text, image, audio, video, code) each serve distinct use
+                cases, while <strong>multimodal models</strong> combine all these capabilities into unified systems that
+                mirror how humans naturally perceive and interact with the world.</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>Lecture 3 notes · Generative AI &amp; LLMs · Visualised for educational purposes &nbsp;|&nbsp; 2026</p>
+    </footer>
+
+    <script>
+        // ─── Progress bar ───
+        window.addEventListener('scroll', () => {
+            const scrolled = window.scrollY;
+            const total = document.documentElement.scrollHeight - window.innerHeight;
+            document.getElementById('progress-bar').style.width = (scrolled / total * 100) + '%';
+        });
+
+        // ─── Intersection observer for scroll animations ───
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => entry.target.classList.add('visible'), entry.target.dataset.delay || 0);
+                }
+            });
+        }, { threshold: 0.12 });
+
+        document.querySelectorAll('.concept-card, .tl-item, .spec-box, .model-card').forEach((el, i) => {
+            el.dataset.delay = (i % 5) * 90;
+            observer.observe(el);
+        });
+    </script>
+</body>
+
+</html>

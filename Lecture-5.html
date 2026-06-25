@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BERT – Bidirectional Encoder Representations from Transformers</title>
+<style>
+  :root {
+    --purple-50: #EEEDFE; --purple-100: #CECBF6; --purple-200: #AFA9EC;
+    --purple-400: #7F77DD; --purple-600: #534AB7; --purple-800: #3C3489; --purple-900: #26215C;
+    --teal-50: #E1F5EE; --teal-100: #9FE1CB; --teal-200: #5DCAA5;
+    --teal-400: #1D9E75; --teal-600: #0F6E56; --teal-800: #085041;
+    --amber-50: #FAEEDA; --amber-100: #FAC775; --amber-200: #EF9F27;
+    --amber-400: #BA7517; --amber-600: #854F0B;
+    --coral-50: #FAECE7; --coral-100: #F5C4B3; --coral-200: #F0997B;
+    --coral-400: #D85A30; --coral-600: #993C1D;
+    --gray-50: #F1EFE8; --gray-100: #D3D1C7; --gray-200: #B4B2A9;
+    --gray-400: #888780; --gray-600: #5F5E5A; --gray-800: #444441; --gray-900: #2C2C2A;
+    --blue-50: #E6F1FB; --blue-100: #B5D4F4; --blue-200: #85B7EB;
+    --blue-400: #378ADD; --blue-600: #185FA5; --blue-800: #0C447C;
+    --green-50: #EAF3DE; --green-100: #C0DD97; --green-200: #97C459;
+    --green-400: #639922; --green-600: #3B6D11;
+    --bg: #ffffff; --surface: #f8f7f4; --text: #2C2C2A; --muted: #5F5E5A; --border: rgba(0,0,0,0.12);
+    --radius: 12px; --radius-sm: 8px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a18; --surface: #222220; --text: #e8e6de; --muted: #9c9a92; --border: rgba(255,255,255,0.1);
+      --purple-50: #26215C; --purple-100: #3C3489; --purple-200: #534AB7; --purple-400: #7F77DD; --purple-600: #AFA9EC; --purple-800: #CECBF6;
+      --teal-50: #04342C; --teal-100: #085041; --teal-200: #0F6E56; --teal-400: #1D9E75; --teal-600: #5DCAA5;
+      --amber-50: #412402; --amber-100: #633806; --amber-200: #854F0B; --amber-400: #EF9F27;
+      --coral-50: #4A1B0C; --coral-100: #712B13; --coral-200: #993C1D; --coral-400: #F0997B;
+      --blue-50: #042C53; --blue-100: #0C447C; --blue-200: #185FA5; --blue-400: #85B7EB;
+      --green-50: #173404; --green-100: #27500A; --green-200: #3B6D11;
+      --gray-50: #2C2C2A; --gray-100: #444441; --gray-200: #5F5E5A; --gray-400: #888780; --gray-600: #B4B2A9;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+  /* ─── SCROLL REVEAL ─── */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.55s ease, transform 0.55s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+  .reveal-delay-1 { transition-delay: 0.08s; }
+  .reveal-delay-2 { transition-delay: 0.16s; }
+  .reveal-delay-3 { transition-delay: 0.24s; }
+  .reveal-delay-4 { transition-delay: 0.32s; }
+
+  /* ─── HERO ─── */
+  .hero {
+    background: var(--purple-900);
+    color: var(--purple-100);
+    padding: 4rem 2rem 3.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  /* animated grid lines */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(255,255,255,0.045) 79px, rgba(255,255,255,0.045) 80px),
+      repeating-linear-gradient(0deg,  transparent, transparent 79px, rgba(255,255,255,0.025) 79px, rgba(255,255,255,0.025) 80px);
+    animation: gridDrift 20s linear infinite;
+  }
+  @keyframes gridDrift { from { background-position: 0 0, 0 0; } to { background-position: 80px 80px, 80px 80px; } }
+
+  /* floating orbs */
+  .hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    pointer-events: none;
+    animation: orbFloat 8s ease-in-out infinite;
+  }
+  .hero-orb-1 { width: 280px; height: 280px; background: rgba(127,119,221,0.25); top: -80px; left: -60px; animation-delay: 0s; }
+  .hero-orb-2 { width: 200px; height: 200px; background: rgba(29,158,117,0.2); bottom: -60px; right: -40px; animation-delay: -3s; }
+  @keyframes orbFloat { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-20px) scale(1.05); } }
+
+  .hero-inner { position: relative; z-index: 1; }
+  .hero h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    color: #fff;
+    animation: heroFadeUp 0.7s ease both;
+  }
+  .hero-acronym {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin: 0.75rem 0 0.5rem;
+    animation: heroFadeUp 0.7s 0.1s ease both;
+  }
+  .acronym-letter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 0.6rem;
+    border-right: 1px solid rgba(255,255,255,0.12);
+  }
+  .acronym-letter:last-child { border-right: none; }
+  .al-char { font-size: 1.5rem; font-weight: 800; color: var(--purple-200); line-height: 1; }
+  .al-word { font-size: 0.65rem; color: rgba(255,255,255,0.5); letter-spacing: 0.04em; margin-top: 3px; text-transform: uppercase; }
+  .hero .subtitle { font-size: 0.95rem; color: var(--purple-200); margin-top: 0.6rem; animation: heroFadeUp 0.7s 0.2s ease both; }
+  .hero .badge-row { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; animation: heroFadeUp 0.7s 0.3s ease both; }
+  .hero .badge { display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(255,255,255,0.1); color: var(--purple-100); font-size: 0.75rem; padding: 0.3rem 0.75rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); }
+  .hero .badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal-400); }
+
+  @keyframes heroFadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+  /* bidir arrows in hero */
+  .hero-bidir { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 1.5rem; animation: heroFadeUp 0.7s 0.4s ease both; }
+  .hero-arrow { font-size: 1.4rem; animation: arrowPulse 2s ease-in-out infinite; }
+  .hero-arrow.left { color: var(--purple-200); animation-delay: -1s; }
+  .hero-arrow.right { color: var(--teal-400); }
+  .hero-word { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); padding: 0.3rem 0.85rem; border-radius: 8px; font-weight: 700; color: #fff; font-size: 0.95rem; position: relative; }
+  .hero-word::after { content: ''; position: absolute; inset: -2px; border-radius: 10px; border: 1.5px solid rgba(239,159,39,0.6); animation: borderGlow 2s ease-in-out infinite; }
+  @keyframes arrowPulse { 0%,100% { opacity: 0.4; transform: translateX(0); } 50% { opacity: 1; transform: translateX(-4px); } }
+  .hero-arrow.right { animation-name: arrowPulseRight; }
+  @keyframes arrowPulseRight { 0%,100% { opacity: 0.4; transform: translateX(0); } 50% { opacity: 1; transform: translateX(4px); } }
+  @keyframes borderGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(239,159,39,0); } 50% { box-shadow: 0 0 10px 2px rgba(239,159,39,0.3); } }
+
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .section-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .section-title .st-icon { font-size: 1rem; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+    transition: box-shadow 0.25s;
+  }
+  .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+
+  /* ─── BIDIRECTIONAL DEMO ─── */
+  .bidir-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+  .sentence { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; align-items: center; }
+  .token {
+    padding: 0.4rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .token:hover { transform: translateY(-2px); }
+  .token.target { background: var(--amber-200); border-color: var(--amber-400); color: var(--amber-600); animation: tokenPulse 2s infinite; transform: scale(1.08); }
+  .token.left-ctx { background: var(--purple-50); border-color: var(--purple-200); color: var(--purple-600); }
+  .token.right-ctx { background: var(--teal-50); border-color: var(--teal-200); color: var(--teal-600); }
+  .token.neutral { background: var(--gray-50); border-color: var(--gray-100); color: var(--gray-400); }
+  @keyframes tokenPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(186,117,23,0.4); } 50% { box-shadow: 0 0 0 8px rgba(186,117,23,0); } }
+
+  .arrow-row { display: flex; align-items: center; gap: 0.75rem; font-size: 0.82rem; color: var(--muted); flex-wrap: wrap; justify-content: center; }
+  .dir-badge { padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600; }
+  .left-badge { background: var(--purple-50); color: var(--purple-600); }
+  .right-badge { background: var(--teal-50); color: var(--teal-600); }
+  .target-badge { background: var(--amber-50); color: var(--amber-400); }
+
+  .example-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .tab-btn {
+    padding: 0.35rem 0.85rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { background: var(--surface); }
+  .tab-btn.active { background: var(--purple-50); border-color: var(--purple-200); color: var(--purple-600); font-weight: 600; }
+
+  .interpretation-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--amber-200);
+    padding: 0.85rem 1rem;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.9rem;
+    min-height: 56px;
+    width: 100%;
+  }
+  .interpretation-box .meaning { font-weight: 600; color: var(--text); }
+  .interpretation-box .reason { color: var(--muted); font-size: 0.83rem; margin-top: 0.25rem; }
+
+  /* ─── COMPARISON ─── */
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .compare-card { border-radius: var(--radius-sm); padding: 1.25rem; border: 1.5px solid var(--border); transition: transform 0.2s; }
+  .compare-card:hover { transform: translateY(-2px); }
+  .compare-card.old { border-color: var(--coral-200); background: var(--coral-50); }
+  .compare-card.new { border-color: var(--teal-200); background: var(--teal-50); }
+  .compare-card h3 { font-size: 0.88rem; font-weight: 700; margin-bottom: 0.75rem; }
+  .compare-card.old h3 { color: var(--coral-400); }
+  .compare-card.new h3 { color: var(--teal-600); }
+  .compare-card ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .compare-card li { font-size: 0.87rem; color: var(--text); padding-left: 1.2rem; position: relative; }
+  .compare-card li::before { content: '×'; position: absolute; left: 0; }
+  .compare-card.old li::before { color: var(--coral-400); }
+  .compare-card.new li::before { content: '✓'; color: var(--teal-400); }
+
+  /* ─── MLM DEMO ─── */
+  .mlm-sentence {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem 1rem;
+    background: var(--bg);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .mlm-token {
+    padding: 0.4rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+  }
+  .mlm-token.masked {
+    background: var(--purple-50);
+    border-style: dashed;
+    border-color: var(--purple-200);
+    color: var(--purple-400);
+    position: relative;
+    min-width: 80px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: maskedBlink 2s ease-in-out infinite;
+  }
+  @keyframes maskedBlink {
+    0%,100% { border-color: var(--purple-200); background: var(--purple-50); }
+    50% { border-color: var(--purple-400); background: var(--purple-100); }
+  }
+  .mlm-token.masked.revealed {
+    background: var(--green-50);
+    border-style: solid;
+    border-color: var(--green-200);
+    color: var(--green-400);
+    animation: revealPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  @keyframes revealPop {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    100% { transform: scale(1.1); opacity: 1; }
+  }
+
+  .mlm-controls { display: flex; justify-content: center; gap: 0.75rem; margin-top: 0.75rem; }
+  .btn {
+    padding: 0.45rem 1.1rem;
+    border-radius: 8px;
+    border: 1px solid var(--purple-200);
+    background: var(--purple-50);
+    color: var(--purple-600);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn:hover { background: var(--purple-100); transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn.secondary { background: var(--teal-50); border-color: var(--teal-200); color: var(--teal-600); }
+  .btn.secondary:hover { background: var(--teal-100); }
+
+  /* ─── TASKS GRID ─── */
+  .tasks-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.85rem; }
+  .task-card {
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    transition: all 0.25s;
+    cursor: default;
+  }
+  .task-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); border-color: var(--purple-200); }
+  .task-icon { font-size: 1.6rem; transition: transform 0.3s; }
+  .task-card:hover .task-icon { transform: scale(1.15) rotate(-5deg); }
+  .task-name { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+  .task-desc { font-size: 0.81rem; color: var(--muted); line-height: 1.45; }
+
+  /* ─── ARCHITECTURE ─── */
+  .arch-flow {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    overflow-x: auto;
+    padding: 1rem 0 1.25rem;
+    scrollbar-width: thin;
+  }
+  .arch-step { display: flex; flex-direction: column; align-items: center; min-width: 110px; }
+  .arch-box {
+    width: 90px;
+    height: 64px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--bg);
+    padding: 0.3rem;
+    line-height: 1.3;
+    cursor: default;
+    transition: all 0.25s;
+    position: relative;
+  }
+  .arch-box:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+  .arch-box.accent-purple { background: var(--purple-50); border-color: var(--purple-200); color: var(--purple-600); }
+  .arch-box.accent-teal { background: var(--teal-50); border-color: var(--teal-200); color: var(--teal-600); }
+  .arch-box.accent-amber { background: var(--amber-50); border-color: var(--amber-100); color: var(--amber-400); }
+  .arch-box.accent-green { background: var(--green-50); border-color: var(--green-100); color: var(--green-400); }
+  .arch-arrow { font-size: 1.2rem; color: var(--muted); padding: 0 0.2rem; margin-top: 1.25rem; }
+  .arch-label { font-size: 0.7rem; color: var(--muted); margin-top: 0.4rem; text-align: center; width: 90px; line-height: 1.3; }
+
+  /* animated flow dots on arch */
+  .arch-flow-animated { position: relative; overflow: hidden; }
+  .arch-box.accent-amber::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+    background: linear-gradient(90deg, transparent 0%, rgba(239,159,39,0.15) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 2.5s ease-in-out infinite;
+  }
+  @keyframes shimmer { from { background-position: -200% 0; } to { background-position: 200% 0; } }
+
+  /* ─── TIMELINE ─── */
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .tl-item { display: flex; gap: 1rem; }
+  .tl-left { display: flex; flex-direction: column; align-items: center; }
+  .tl-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--purple-400); flex-shrink: 0; margin-top: 5px; transition: transform 0.3s; }
+  .tl-item:hover .tl-dot { transform: scale(1.4); }
+  .tl-line { width: 2px; flex: 1; background: var(--border); margin: 4px 0; min-height: 20px; }
+  .tl-content { padding-bottom: 1.25rem; }
+  .tl-year { font-size: 0.75rem; font-weight: 700; color: var(--purple-400); letter-spacing: 0.05em; }
+  .tl-text { font-size: 0.88rem; color: var(--text); margin-top: 0.15rem; }
+
+  /* ─── NER ─── */
+  .ner-sentence { font-size: 1.05rem; line-height: 2.4; padding: 0.75rem 0; }
+  .ner-tag {
+    display: inline;
+    padding: 0.15rem 0.5rem;
+    border-radius: 5px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-left: 4px;
+    vertical-align: middle;
+    animation: tagPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  @keyframes tagPop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .ner-person { background: var(--purple-50); color: var(--purple-600); border: 1px solid var(--purple-100); }
+  .ner-org { background: var(--teal-50); color: var(--teal-600); border: 1px solid var(--teal-100); }
+  .ner-loc { background: var(--amber-50); color: var(--amber-400); border: 1px solid var(--amber-100); }
+  .ner-word { font-weight: 700; }
+
+  /* ─── NSP ─── */
+  .nsp-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .nsp-sent { border-radius: var(--radius-sm); padding: 0.85rem 1rem; border: 1.5px solid var(--border); font-size: 0.9rem; transition: all 0.35s; }
+  .nsp-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.35rem; }
+  .nsp-sent.follows { border-color: var(--green-200); background: var(--green-50); }
+  .nsp-sent.nofollows { border-color: var(--coral-200); background: var(--coral-50); }
+  .nsp-sent.follows .nsp-label { color: var(--green-400); }
+  .nsp-sent.nofollows .nsp-label { color: var(--coral-400); }
+  .nsp-verdict {
+    text-align: center;
+    padding: 0.65rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 0.75rem;
+    transition: all 0.35s;
+    animation: verdictSlide 0.4s ease;
+  }
+  @keyframes verdictSlide { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .nsp-verdict.yes { background: var(--green-50); color: var(--green-400); border: 1px solid var(--green-100); }
+  .nsp-verdict.no { background: var(--coral-50); color: var(--coral-400); border: 1px solid var(--coral-100); }
+
+  /* ─── INFO TIP ─── */
+  .info-tip {
+    display: flex;
+    gap: 0.6rem;
+    background: var(--blue-50);
+    border-left: 3px solid var(--blue-200);
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.86rem;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+  .info-tip strong { color: var(--blue-600); }
+
+  /* ─── PROGRESS BAR ─── */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--purple-400), var(--teal-400));
+    z-index: 100;
+    transition: width 0.1s;
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .anim-in { animation: fadeIn 0.35s ease forwards; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 560px) {
+    .compare-grid, .nsp-pair { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 2rem; }
+    .arch-flow { justify-content: flex-start; }
+    .hero-bidir { gap: 0.3rem; }
+  }
+
+  /* ─── FOOTER ─── */
+  .footer-note {
+    text-align: center;
+    padding: 2rem 1rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+
+  /* reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- ─── HERO ─── -->
+<div class="hero">
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-inner">
+    <h1>BERT</h1>
+    <div class="hero-acronym">
+      <div class="acronym-letter"><span class="al-char">B</span><span class="al-word">Bidirectional</span></div>
+      <div class="acronym-letter"><span class="al-char">E</span><span class="al-word">Encoder</span></div>
+      <div class="acronym-letter"><span class="al-char">R</span><span class="al-word">Representations</span></div>
+      <div class="acronym-letter"><span class="al-char">T</span><span class="al-word">Transformers</span></div>
+    </div>
+    <div class="subtitle">Reading words from both directions — simultaneously</div>
+    <div class="hero-bidir" title="BERT reads context from both left and right at once">
+      <span class="hero-arrow left">←</span>
+      <span class="hero-arrow left">←</span>
+      <span class="hero-word">bank</span>
+      <span class="hero-arrow right">→</span>
+      <span class="hero-arrow right">→</span>
+    </div>
+    <div class="badge-row">
+      <span class="badge"><span class="dot"></span>NLP Model by Google</span>
+      <span class="badge">Introduced 2018</span>
+      <span class="badge">Transformer Encoder Only</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TIMELINE -->
+  <div class="section-title reveal"><span class="st-icon">⏱</span> Evolution: from RNN to BERT</div>
+  <div class="card reveal reveal-delay-1">
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot" style="background:var(--gray-400)"></div><div class="tl-line"></div></div>
+        <div class="tl-content"><div class="tl-year">Pre-2017 · RNN / LSTM</div><div class="tl-text">Words processed <strong>one by one</strong>, sequentially. Models read left-to-right or right-to-left only. Struggled to remember context over long sequences.</div></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot" style="background:var(--amber-200)"></div><div class="tl-line"></div></div>
+        <div class="tl-content"><div class="tl-year">2017 · Transformer</div><div class="tl-text">Processes <strong>all words in parallel</strong> (faster training). Introduced self-attention — every word can look at every other word simultaneously.</div></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot" style="background:var(--purple-400)"></div></div>
+        <div class="tl-content"><div class="tl-year">2018 · BERT</div><div class="tl-text">Uses the Transformer's <strong>encoder</strong> only. Reads context from <em>both left and right</em> simultaneously — true bidirectional understanding.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIDIRECTIONAL DEMO -->
+  <div class="section-title reveal"><span class="st-icon">↔️</span> What does "Bidirectional" mean?</div>
+  <div class="card reveal reveal-delay-1">
+    <div class="info-tip"><strong>Key idea:</strong> To understand the meaning of a word, BERT reads words <em>before</em> it (left context) <em>and</em> words <em>after</em> it (right context) at the same time.</div>
+
+    <div class="example-tabs" id="exTabs">
+      <button class="tab-btn active" onclick="showExample(0)">Sentence A – River bank</button>
+      <button class="tab-btn" onclick="showExample(1)">Sentence B – Financial bank</button>
+      <button class="tab-btn" onclick="showExample(2)">Cricket example</button>
+    </div>
+
+    <div class="bidir-wrap">
+      <div class="sentence" id="tokenRow"></div>
+      <div class="arrow-row">
+        <span class="dir-badge left-badge">← Left context</span>
+        <span class="dir-badge target-badge">Target word</span>
+        <span class="dir-badge right-badge">Right context →</span>
+      </div>
+      <div class="interpretation-box" id="interpretBox">
+        <div class="meaning" id="meaning"></div>
+        <div class="reason" id="reason"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OLD vs NEW -->
+  <div class="section-title reveal"><span class="st-icon">⚖️</span> Old models vs BERT</div>
+  <div class="compare-grid reveal reveal-delay-1">
+    <div class="compare-card old">
+      <h3>⚠ Traditional Models (RNN/LSTM)</h3>
+      <ul>
+        <li>Read text in one direction only</li>
+        <li>Left-to-right OR right-to-left</li>
+        <li>Miss the complete context</li>
+        <li>Struggle with ambiguous words</li>
+        <li>Slow sequential processing</li>
+      </ul>
+    </div>
+    <div class="compare-card new">
+      <h3>✦ BERT</h3>
+      <ul>
+        <li>Reads left AND right simultaneously</li>
+        <li>True bidirectional understanding</li>
+        <li>Captures full word context</li>
+        <li>Resolves ambiguity from context</li>
+        <li>Parallel processing (faster)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- MLM DEMO -->
+  <div class="section-title reveal"><span class="st-icon">🎭</span> How BERT Learns – Masked Language Model (MLM)</div>
+  <div class="card reveal reveal-delay-1">
+    <div class="info-tip"><strong>MLM:</strong> During training, BERT randomly hides (masks) some words. It must predict the missing word using surrounding context — from both directions.</div>
+    <div class="mlm-sentence" id="mlmSentence"></div>
+    <div class="mlm-controls">
+      <button class="btn" onclick="revealMasked()">▶ Reveal prediction</button>
+      <button class="btn secondary" onclick="resetMasked()">↺ Try another</button>
+    </div>
+    <p style="text-align:center;font-size:0.8rem;color:var(--muted);margin-top:0.75rem;transition:all 0.35s" id="mlmHint">Click "Reveal prediction" to see what BERT predicts</p>
+  </div>
+
+  <!-- NSP DEMO -->
+  <div class="section-title reveal"><span class="st-icon">🔗</span> Next Sentence Prediction (NSP)</div>
+  <div class="card reveal reveal-delay-1">
+    <div class="info-tip"><strong>NSP:</strong> BERT also learns whether two sentences naturally follow each other. This helps it understand relationships between sentences.</div>
+    <div class="example-tabs" id="nspTabs">
+      <button class="tab-btn active" onclick="showNSP(0)">Related sentences</button>
+      <button class="tab-btn" onclick="showNSP(1)">Unrelated sentences</button>
+    </div>
+    <div class="nsp-pair">
+      <div class="nsp-sent" id="nspA">
+        <div class="nsp-label">Sentence A</div>
+        <span id="nspAText"></span>
+      </div>
+      <div class="nsp-sent" id="nspB">
+        <div class="nsp-label">Sentence B</div>
+        <span id="nspBText"></span>
+      </div>
+    </div>
+    <div class="nsp-verdict" id="nspVerdict"></div>
+  </div>
+
+  <!-- NER DEMO -->
+  <div class="section-title reveal"><span class="st-icon">🏷️</span> Named Entity Recognition (NER)</div>
+  <div class="card reveal reveal-delay-1">
+    <div class="info-tip"><strong>NER:</strong> BERT identifies names, places, organisations, and time references inside any sentence.</div>
+    <div class="ner-sentence" id="nerSentence"></div>
+    <div class="example-tabs" style="margin-top:0.75rem" id="nerTabs">
+      <button class="tab-btn active" onclick="showNER(0)">Example 1</button>
+      <button class="tab-btn" onclick="showNER(1)">Example 2</button>
+      <button class="tab-btn" onclick="showNER(2)">Example 3</button>
+    </div>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.75rem">
+      <span class="ner-tag ner-person">PERSON</span>
+      <span class="ner-tag ner-org">ORGANISATION</span>
+      <span class="ner-tag ner-loc">LOCATION / CITY</span>
+    </div>
+  </div>
+
+  <!-- TASKS -->
+  <div class="section-title reveal"><span class="st-icon">🚀</span> BERT's Main Applications</div>
+  <div class="tasks-grid">
+    <div class="task-card reveal reveal-delay-1">
+      <div class="task-icon">🔍</div>
+      <div class="task-name">Question Answering</div>
+      <div class="task-desc">Reads a passage and answers questions by understanding the context of the query.</div>
+    </div>
+    <div class="task-card reveal reveal-delay-2">
+      <div class="task-icon">🏷️</div>
+      <div class="task-name">Classification</div>
+      <div class="task-desc">Labels text into categories (e.g. spam / not spam, sentiment analysis).</div>
+    </div>
+    <div class="task-card reveal reveal-delay-3">
+      <div class="task-icon">👤</div>
+      <div class="task-name">Named Entity Recognition</div>
+      <div class="task-desc">Identifies people, places, organisations and time expressions.</div>
+    </div>
+    <div class="task-card reveal reveal-delay-4">
+      <div class="task-icon">🔗</div>
+      <div class="task-name">Sentence Relationships</div>
+      <div class="task-desc">Understands how two sentences relate to each other via NSP training.</div>
+    </div>
+  </div>
+
+  <!-- ARCHITECTURE -->
+  <div class="section-title reveal"><span class="st-icon">🏗️</span> BERT's Architecture Flow</div>
+  <div class="card reveal reveal-delay-1">
+    <div class="info-tip"><strong>Important:</strong> BERT uses only the <em>Encoder</em> part of a Transformer. It does NOT use the Decoder (unlike GPT which uses both).</div>
+    <div class="arch-flow">
+      <div class="arch-step">
+        <div class="arch-box accent-purple">Input<br>Text</div>
+        <div class="arch-label">Raw sentence</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-step">
+        <div class="arch-box accent-purple">Tokenisation</div>
+        <div class="arch-label">Split into words / sub-words</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-step">
+        <div class="arch-box accent-teal">Embeddings</div>
+        <div class="arch-label">Convert to numbers</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-step">
+        <div class="arch-box accent-amber">Transformer<br>Encoder Layers</div>
+        <div class="arch-label">Bidirectional attention</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-step">
+        <div class="arch-box accent-amber">Context<br>Representations</div>
+        <div class="arch-label">Rich word meanings</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-step">
+        <div class="arch-box accent-green">Task<br>Output</div>
+        <div class="arch-label">Classification / NER / QA</div>
+      </div>
+    </div>
+
+    <div style="margin-top:1rem;display:flex;gap:1rem;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px;padding:0.85rem;border-radius:8px;background:var(--teal-50);border:1px solid var(--teal-100)">
+        <div style="font-size:0.8rem;font-weight:700;color:var(--teal-600);margin-bottom:0.35rem">BERT uses ✓</div>
+        <div style="font-size:0.85rem;color:var(--text)">Transformer <strong>Encoder</strong> only — reads and understands text bidirectionally.</div>
+      </div>
+      <div style="flex:1;min-width:200px;padding:0.85rem;border-radius:8px;background:var(--coral-50);border:1px solid var(--coral-100)">
+        <div style="font-size:0.8rem;font-weight:700;color:var(--coral-400);margin-bottom:0.35rem">BERT does NOT use ×</div>
+        <div style="font-size:0.85rem;color:var(--text)">Transformer <strong>Decoder</strong> — that's used by GPT (which also generates text).</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="section-title reveal"><span class="st-icon">📋</span> Quick Summary</div>
+  <div class="card reveal reveal-delay-1" style="border-color:var(--purple-100);background:var(--purple-50)">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem">
+      <div><div style="font-size:0.72rem;font-weight:700;color:var(--purple-400);letter-spacing:.06em;text-transform:uppercase">Full Name</div><div style="font-size:0.9rem;color:var(--purple-800);margin-top:0.2rem">Bidirectional Encoder<br>Representations from Transformers</div></div>
+      <div><div style="font-size:0.72rem;font-weight:700;color:var(--purple-400);letter-spacing:.06em;text-transform:uppercase">Developed By</div><div style="font-size:0.9rem;color:var(--purple-800);margin-top:0.2rem">Google</div></div>
+      <div><div style="font-size:0.72rem;font-weight:700;color:var(--purple-400);letter-spacing:.06em;text-transform:uppercase">Year</div><div style="font-size:0.9rem;color:var(--purple-800);margin-top:0.2rem">2018</div></div>
+      <div><div style="font-size:0.72rem;font-weight:700;color:var(--purple-400);letter-spacing:.06em;text-transform:uppercase">Training Type</div><div style="font-size:0.9rem;color:var(--purple-800);margin-top:0.2rem">Unsupervised (on large text datasets)</div></div>
+      <div><div style="font-size:0.72rem;font-weight:700;color:var(--purple-400);letter-spacing:.06em;text-transform:uppercase">Training Techniques</div><div style="font-size:0.9rem;color:var(--purple-800);margin-top:0.2rem">MLM (Masked Language Model) + NSP (Next Sentence Prediction)</div></div>
+      <div><div style="font-size:0.72rem;font-weight:700;color:var(--purple-400);letter-spacing:.06em;text-transform:uppercase">Architecture</div><div style="font-size:0.9rem;color:var(--purple-800);margin-top:0.2rem">Transformer Encoder only (no Decoder)</div></div>
+    </div>
+  </div>
+
+  <div style="height:1rem"></div>
+</div>
+
+<div class="footer-note">Based on classroom lecture notes · BERT · Google, 2018</div>
+
+<script>
+/* ─── SCROLL PROGRESS BAR ─── */
+window.addEventListener('scroll', () => {
+  const el = document.documentElement;
+  const pct = el.scrollTop / (el.scrollHeight - el.clientHeight) * 100;
+  document.getElementById('progressBar').style.width = Math.min(pct, 100) + '%';
+});
+
+/* ─── SCROLL REVEAL ─── */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+/* ─── BIDIRECTIONAL DEMO ─── */
+const examples = [
+  {
+    tokens: ["Ajit", "sat", "on", "the", "bank", "of", "the", "river"],
+    target: 4,
+    meaning: "✅ BERT understands: 'bank' = river shore",
+    reason: "Right context ('of', 'the', 'river') confirms it's a natural feature, not a financial institution."
+  },
+  {
+    tokens: ["Ajit", "deposited", "money", "in", "the", "bank"],
+    target: 5,
+    meaning: "✅ BERT understands: 'bank' = financial institution",
+    reason: "Left context ('deposited', 'money') signals a financial transaction — no river involved!"
+  },
+  {
+    tokens: ["Abhishek", "plays", "[MASK]", "in", "the", "tournament"],
+    target: 2,
+    meaning: "🎯 BERT predicts the masked word",
+    reason: "Left context says 'plays', right context says 'in the tournament' — likely a sport like cricket!"
+  }
+];
+
+function showExample(idx) {
+  document.querySelectorAll('#exTabs .tab-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+  const ex = examples[idx];
+  const row = document.getElementById('tokenRow');
+  row.innerHTML = '';
+  ex.tokens.forEach((t, i) => {
+    const el = document.createElement('span');
+    el.className = 'token';
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(10px)';
+    if(i === ex.target) el.classList.add('target');
+    else if(i < ex.target) el.classList.add('left-ctx');
+    else el.classList.add('right-ctx');
+    el.textContent = t;
+    row.appendChild(el);
+    setTimeout(() => { el.style.transition = 'all 0.3s cubic-bezier(0.34,1.56,0.64,1)'; el.style.opacity = '1'; el.style.transform = 'none'; }, i * 60);
+  });
+  document.getElementById('meaning').textContent = ex.meaning;
+  document.getElementById('reason').textContent = ex.reason;
+  const box = document.getElementById('interpretBox');
+  box.classList.remove('anim-in');
+  void box.offsetWidth;
+  box.classList.add('anim-in');
+}
+showExample(0);
+
+/* ─── MLM DEMO ─── */
+const mlmExamples = [
+  { tokens: ["Abhishek", "plays", "[MASK]", "every", "weekend"], maskedIdx: 2, answer: "cricket", hint: "💡 Left: 'Abhishek plays' + Right: 'every weekend' → likely a sport." },
+  { tokens: ["She", "put", "the", "[MASK]", "in", "the", "oven"], maskedIdx: 3, answer: "cake", hint: "💡 Context of oven + she put something in it → food item." },
+  { tokens: ["The", "doctor", "gave", "the", "patient", "a", "[MASK]"], maskedIdx: 6, answer: "prescription", hint: "💡 Doctor + patient context strongly implies a medical word." }
+];
+let mlmIdx = 0, revealed = false;
+
+function renderMLM() {
+  const ex = mlmExamples[mlmIdx];
+  const s = document.getElementById('mlmSentence');
+  s.innerHTML = '';
+  revealed = false;
+  document.getElementById('mlmHint').textContent = 'Click "Reveal prediction" to see what BERT predicts';
+  ex.tokens.forEach((t, i) => {
+    const el = document.createElement('span');
+    el.className = 'mlm-token' + (i === ex.maskedIdx ? ' masked' : '');
+    el.textContent = t;
+    if(i === ex.maskedIdx) el.id = 'maskedToken';
+    s.appendChild(el);
+  });
+}
+
+function revealMasked() {
+  if(revealed) return;
+  const ex = mlmExamples[mlmIdx];
+  const tok = document.getElementById('maskedToken');
+  if(!tok) return;
+  tok.textContent = ex.answer;
+  tok.classList.add('revealed');
+  document.getElementById('mlmHint').textContent = ex.hint;
+  revealed = true;
+}
+
+function resetMasked() {
+  mlmIdx = (mlmIdx + 1) % mlmExamples.length;
+  renderMLM();
+}
+renderMLM();
+
+/* ─── NSP DEMO ─── */
+const nspExamples = [
+  { a: "The scientists conducted experiments in the lab.", b: "They published their findings in a journal.", follows: true },
+  { a: "Rohit scored a century in today's match.", b: "The chef prepared a delicious pasta dish.", follows: false }
+];
+
+function showNSP(idx) {
+  document.querySelectorAll('#nspTabs .tab-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+  const ex = nspExamples[idx];
+  document.getElementById('nspAText').textContent = ex.a;
+  document.getElementById('nspBText').textContent = ex.b;
+  const nspA = document.getElementById('nspA');
+  const nspB = document.getElementById('nspB');
+  const v = document.getElementById('nspVerdict');
+  if(ex.follows) {
+    nspA.className = 'nsp-sent follows'; nspB.className = 'nsp-sent follows';
+    v.className = 'nsp-verdict yes';
+    v.textContent = '✓ BERT predicts: Sentence B FOLLOWS Sentence A (related topics)';
+  } else {
+    nspA.className = 'nsp-sent nofollows'; nspB.className = 'nsp-sent nofollows';
+    v.className = 'nsp-verdict no';
+    v.textContent = '✗ BERT predicts: Sentence B does NOT follow Sentence A (unrelated topics)';
+  }
+  v.style.animation = 'none'; void v.offsetWidth; v.style.animation = '';
+}
+showNSP(0);
+
+/* ─── NER DEMO ─── */
+const nerExamples = [
+  { html: '<span class="ner-word">Ajit</span><span class="ner-tag ner-person">PERSON</span> works for <span class="ner-word">TCS</span><span class="ner-tag ner-org">ORG</span> in <span class="ner-word">Mumbai</span><span class="ner-tag ner-loc">CITY</span>.' },
+  { html: '<span class="ner-word">Rohit</span><span class="ner-tag ner-person">PERSON</span> stays in <span class="ner-word">Mumbai</span><span class="ner-tag ner-loc">CITY</span> near his best friend <span class="ner-word">Sam</span><span class="ner-tag ner-person">PERSON</span>.' },
+  { html: '<span class="ner-word">Anil</span><span class="ner-tag ner-person">PERSON</span> is a good friend of <span class="ner-word">Rajit</span><span class="ner-tag ner-person">PERSON</span>. They both work at <span class="ner-word">Infosys</span><span class="ner-tag ner-org">ORG</span>.' }
+];
+
+function showNER(idx) {
+  document.querySelectorAll('#nerTabs .tab-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+  const el = document.getElementById('nerSentence');
+  el.style.opacity = '0';
+  setTimeout(() => { el.innerHTML = nerExamples[idx].html; el.style.transition = 'opacity 0.3s'; el.style.opacity = '1'; }, 150);
+}
+showNER(0);
+</script>
+</body>
+</html>
