@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Transformers Explained — Personal Notes</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Fira+Code:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #080a18;
+            --surface: #0f1128;
+            --card: #161932;
+            --card2: #1e2244;
+            --accent: #818cf8;
+            --accent2: #34d399;
+            --accent3: #f472b6;
+            --accent4: #fbbf24;
+            --accent5: #38bdf8;
+            --text: #e2e8f0;
+            --muted: #64748b;
+            --border: rgba(129, 140, 248, .18);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* ─── SCROLL PROGRESS ─── */
+        #bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            z-index: 999;
+            width: 0;
+            transition: width .1s;
+        }
+
+        /* ─── NAV ─── */
+        nav {
+            position: fixed;
+            top: 8px;
+            right: 1rem;
+            z-index: 998;
+            display: flex;
+            gap: .45rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            max-width: 780px;
+        }
+
+        nav a {
+            font-size: .7rem;
+            font-weight: 700;
+            color: var(--muted);
+            background: rgba(8, 10, 24, .88);
+            border: 1px solid var(--border);
+            padding: .28rem .7rem;
+            border-radius: 999px;
+            text-decoration: none;
+            backdrop-filter: blur(8px);
+            transition: color .2s, border-color .2s;
+        }
+
+        nav a:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        nav .back {
+            color: var(--accent2);
+            border-color: rgba(52, 211, 153, .3);
+        }
+
+        nav .back:hover {
+            color: var(--accent2);
+        }
+
+        /* ─── HERO ─── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(ellipse at 50% -5%, #16184a 0%, var(--bg) 65%);
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: .22;
+        }
+
+        .orb1 {
+            width: 500px;
+            height: 500px;
+            background: conic-gradient(var(--accent), var(--accent3), var(--accent2), var(--accent));
+            top: -180px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: spin 25s linear infinite;
+        }
+
+        .orb2 {
+            width: 260px;
+            height: 260px;
+            background: var(--accent5);
+            bottom: -60px;
+            right: -40px;
+            animation: floatY 7s ease-in-out infinite alternate;
+        }
+
+        .orb3 {
+            width: 180px;
+            height: 180px;
+            background: var(--accent4);
+            top: 30%;
+            left: -40px;
+            animation: floatY 5s ease-in-out 2s infinite alternate;
+        }
+
+        @keyframes spin {
+            to {
+                transform: translateX(-50%) rotate(360deg);
+            }
+        }
+
+        @keyframes floatY {
+            from {
+                transform: translateY(0);
+            }
+
+            to {
+                transform: translateY(40px);
+            }
+        }
+
+        @keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(28px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-chip {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent), var(--accent3));
+            color: #fff;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            padding: .35rem 1.1rem;
+            border-radius: 999px;
+            margin-bottom: 1.6rem;
+            animation: fadeDown .8s ease both;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.4rem, 6vw, 5rem);
+            font-weight: 800;
+            line-height: 1.08;
+            animation: fadeDown 1s ease .1s both;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            margin-top: 1.1rem;
+            color: var(--muted);
+            font-size: 1rem;
+            max-width: 580px;
+            line-height: 1.75;
+            animation: fadeUp 1s ease .3s both;
+        }
+
+        .hero-meta {
+            margin-top: 1.8rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeUp 1s .45s both;
+        }
+
+        .hero-meta span {
+            font-size: .78rem;
+            color: var(--muted);
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid var(--border);
+            padding: .3rem .85rem;
+            border-radius: 999px;
+        }
+
+        .scroll-cue {
+            margin-top: 2.8rem;
+            font-size: .82rem;
+            color: var(--muted);
+            animation: fadeUp 1s .6s both;
+        }
+
+        .scroll-cue::after {
+            content: '▼';
+            display: inline-block;
+            margin-left: .4rem;
+            animation: bob 1.5s ease-in-out infinite;
+        }
+
+        @keyframes bob {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(7px);
+            }
+        }
+
+        /* ─── SECTIONS ─── */
+        section {
+            max-width: 1060px;
+            margin: 0 auto;
+            padding: 5rem 1.5rem;
+        }
+
+        .s-label {
+            font-size: .68rem;
+            font-weight: 700;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: .5rem;
+        }
+
+        .s-title {
+            font-size: clamp(1.7rem, 4vw, 2.7rem);
+            font-weight: 800;
+            line-height: 1.18;
+            margin-bottom: 1rem;
+        }
+
+        .s-sub {
+            color: var(--muted);
+            font-size: .97rem;
+            line-height: 1.75;
+            max-width: 720px;
+            margin-bottom: 3rem;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* ─── CARDS ─── */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap: 1.4rem;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 1.6rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity .6s, transform .6s, box-shadow .3s, border-color .3s;
+        }
+
+        .card.vis {
+            opacity: 1;
+            transform: none;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 48px rgba(129, 140, 248, .18);
+            border-color: rgba(129, 140, 248, .4);
+        }
+
+        .card-ico {
+            font-size: 2rem;
+            margin-bottom: .8rem;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: .45rem;
+        }
+
+        .card-body {
+            color: var(--muted);
+            font-size: .86rem;
+            line-height: 1.65;
+        }
+
+        /* ─── SPEC BOXES ─── */
+        .flex-row {
+            display: flex;
+            gap: 1.4rem;
+            flex-wrap: wrap;
+        }
+
+        .spec {
+            flex: 1;
+            min-width: 240px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 2rem;
+            opacity: 0;
+            transform: scale(.95);
+            transition: opacity .6s, transform .6s;
+        }
+
+        .spec.vis {
+            opacity: 1;
+            transform: none;
+        }
+
+        .spec:hover {
+            box-shadow: 0 12px 36px rgba(129, 140, 248, .15);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: .28rem .8rem;
+            border-radius: 999px;
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: .05em;
+            margin-bottom: 1rem;
+        }
+
+        .b-indigo {
+            background: rgba(129, 140, 248, .18);
+            color: var(--accent);
+        }
+
+        .b-green {
+            background: rgba(52, 211, 153, .16);
+            color: var(--accent2);
+        }
+
+        .b-pink {
+            background: rgba(244, 114, 182, .16);
+            color: var(--accent3);
+        }
+
+        .b-yellow {
+            background: rgba(251, 191, 36, .14);
+            color: var(--accent4);
+        }
+
+        .b-sky {
+            background: rgba(56, 189, 248, .14);
+            color: var(--accent5);
+        }
+
+        .spec h3 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: .6rem;
+        }
+
+        .spec p,
+        .spec ul {
+            color: var(--muted);
+            font-size: .87rem;
+            line-height: 1.7;
+        }
+
+        .spec ul {
+            padding-left: 1.2rem;
+        }
+
+        .spec ul li {
+            margin-bottom: .35rem;
+        }
+
+        /* ─── RNN DIAGRAM ─── */
+        .diagram-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .rnn-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding: 1rem 0;
+        }
+
+        .rnn-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .4rem;
+        }
+
+        .rnn-label {
+            font-size: .78rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            margin-bottom: .8rem;
+        }
+
+        .rnn-cells {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .rnn-cell {
+            width: 52px;
+            height: 52px;
+            border: 2px solid;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .8rem;
+            font-weight: 700;
+            background: var(--card2);
+            flex-shrink: 0;
+            position: relative;
+            transition: transform .3s, box-shadow .3s;
+        }
+
+        .rnn-cell.enc {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .rnn-cell.dec {
+            border-color: var(--accent2);
+            color: var(--accent2);
+        }
+
+        .rnn-cell:hover {
+            transform: scale(1.12);
+            box-shadow: 0 0 18px rgba(129, 140, 248, .4);
+        }
+
+        .rnn-arrow {
+            font-size: 1.3rem;
+            color: var(--muted);
+            padding: 0 .2rem;
+            flex-shrink: 0;
+        }
+
+        .rnn-arrow.cv {
+            color: var(--accent4);
+            font-weight: 700;
+            font-size: 1.5rem;
+            padding: 0 .6rem;
+        }
+
+        .word-row {
+            display: flex;
+            gap: 0;
+            margin-top: .6rem;
+        }
+
+        .word {
+            width: 52px;
+            text-align: center;
+            font-size: .68rem;
+            color: var(--muted);
+            font-family: 'Fira Code', monospace;
+        }
+
+        .caption {
+            font-size: .8rem;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+        }
+
+        .caption strong {
+            color: var(--text);
+        }
+
+        /* ─── TRANSFORMER FLOW DIAGRAM ─── */
+        .tf-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .8rem;
+            flex-wrap: wrap;
+            padding: 2rem 1rem;
+        }
+
+        .tf-box {
+            background: var(--card2);
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            padding: 1rem 1.2rem;
+            text-align: center;
+            min-width: 120px;
+            transition: transform .3s, box-shadow .3s, border-color .3s;
+        }
+
+        .tf-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 14px 36px rgba(129, 140, 248, .25);
+            border-color: var(--accent);
+        }
+
+        .tf-box .tf-title {
+            font-size: .85rem;
+            font-weight: 800;
+            margin-bottom: .3rem;
+        }
+
+        .tf-box .tf-sub {
+            font-size: .72rem;
+            color: var(--muted);
+        }
+
+        .tf-box.input {
+            border-color: rgba(56, 189, 248, .4);
+            background: rgba(56, 189, 248, .06);
+        }
+
+        .tf-box.enc {
+            border-color: rgba(129, 140, 248, .4);
+            background: rgba(129, 140, 248, .06);
+        }
+
+        .tf-box.attn {
+            border-color: rgba(251, 191, 36, .4);
+            background: rgba(251, 191, 36, .08);
+        }
+
+        .tf-box.dec {
+            border-color: rgba(52, 211, 153, .4);
+            background: rgba(52, 211, 153, .06);
+        }
+
+        .tf-box.output {
+            border-color: rgba(244, 114, 182, .4);
+            background: rgba(244, 114, 182, .06);
+        }
+
+        .tf-arrow {
+            font-size: 1.6rem;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* ─── ATTENTION DIAGRAM ─── */
+        .attn-demo {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .sent-row {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .sent-row.bottom {
+            margin-bottom: 0;
+            margin-top: 2rem;
+        }
+
+        .word-bubble {
+            padding: .5rem 1rem;
+            border-radius: 10px;
+            font-size: .9rem;
+            font-weight: 700;
+            background: var(--card2);
+            border: 1.5px solid var(--border);
+            cursor: default;
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .word-bubble:hover {
+            transform: scale(1.08);
+        }
+
+        .word-bubble.focus {
+            border-color: var(--accent4);
+            background: rgba(251, 191, 36, .12);
+            color: var(--accent4);
+            box-shadow: 0 0 18px rgba(251, 191, 36, .3);
+        }
+
+        .word-bubble.strong {
+            border-color: var(--accent);
+            background: rgba(129, 140, 248, .12);
+        }
+
+        .word-bubble.medium {
+            border-color: rgba(129, 140, 248, .5);
+        }
+
+        .word-bubble.weak {
+            border-color: rgba(129, 140, 248, .2);
+            color: var(--muted);
+        }
+
+        .attn-svg {
+            display: block;
+            margin: 0 auto;
+        }
+
+        .attn-label {
+            text-align: center;
+            font-size: .78rem;
+            color: var(--muted);
+            margin-top: .8rem;
+        }
+
+        /* ─── MULTI-HEAD DEMO ─── */
+        .mh-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .head-card {
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.2rem;
+            text-align: center;
+            opacity: 0;
+            transform: scale(.9);
+            transition: opacity .5s, transform .5s, box-shadow .3s;
+        }
+
+        .head-card.vis {
+            opacity: 1;
+            transform: none;
+        }
+
+        .head-card:hover {
+            box-shadow: 0 10px 28px rgba(129, 140, 248, .2);
+        }
+
+        .head-num {
+            font-size: 2rem;
+            margin-bottom: .4rem;
+        }
+
+        .head-title {
+            font-size: .82rem;
+            font-weight: 700;
+            margin-bottom: .3rem;
+        }
+
+        .head-desc {
+            font-size: .75rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        /* ─── SENTIMENT ─── */
+        .sent-analysis {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .sent-words {
+            display: flex;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .sw {
+            padding: .6rem 1.2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            background: var(--card2);
+            border: 1.5px solid var(--border);
+        }
+
+        .sw.neg {
+            border-color: rgba(244, 114, 182, .5);
+            color: var(--accent3);
+        }
+
+        .sw.inv {
+            border-color: rgba(251, 191, 36, .5);
+            color: var(--accent4);
+            box-shadow: 0 0 16px rgba(251, 191, 36, .25);
+        }
+
+        .sw.pos {
+            border-color: rgba(52, 211, 153, .5);
+            color: var(--accent2);
+        }
+
+        .sw.neutral {
+            color: var(--muted);
+        }
+
+        .curve-svg {
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* ─── BLEU STAT ─── */
+        .stat-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 1.2rem;
+            margin-top: 2rem;
+        }
+
+        .stat {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.6rem;
+            text-align: center;
+            opacity: 0;
+            transform: scale(.92);
+            transition: opacity .6s, transform .6s;
+        }
+
+        .stat.vis {
+            opacity: 1;
+            transform: none;
+        }
+
+        .stat:hover {
+            box-shadow: 0 10px 28px rgba(129, 140, 248, .18);
+        }
+
+        .stat-num {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-lbl {
+            font-size: .78rem;
+            color: var(--muted);
+            margin-top: .3rem;
+            line-height: 1.5;
+        }
+
+        /* ─── COMPARE TABLE ─── */
+        .tbl-wrap {
+            overflow-x: auto;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .88rem;
+        }
+
+        thead tr {
+            background: linear-gradient(90deg, var(--accent), #5b6df8);
+        }
+
+        thead th {
+            padding: .9rem 1.3rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: .82rem;
+            letter-spacing: .05em;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background .2s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: rgba(129, 140, 248, .06);
+        }
+
+        tbody td {
+            padding: .85rem 1.3rem;
+            color: var(--muted);
+            vertical-align: top;
+        }
+
+        tbody td:first-child {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .tag-good {
+            display: inline-block;
+            background: rgba(52, 211, 153, .15);
+            color: var(--accent2);
+            font-size: .7rem;
+            font-weight: 700;
+            padding: .15rem .5rem;
+            border-radius: 6px;
+        }
+
+        .tag-bad {
+            display: inline-block;
+            background: rgba(244, 114, 182, .15);
+            color: var(--accent3);
+            font-size: .7rem;
+            font-weight: 700;
+            padding: .15rem .5rem;
+            border-radius: 6px;
+        }
+
+        /* ─── ZERO/FEW SHOT ─── */
+        .shot-row {
+            display: flex;
+            gap: 1.4rem;
+            flex-wrap: wrap;
+        }
+
+        .shot-box {
+            flex: 1;
+            min-width: 240px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 1.8rem;
+        }
+
+        .shot-box:hover {
+            box-shadow: 0 12px 32px rgba(129, 140, 248, .15);
+        }
+
+        .shot-icon {
+            font-size: 2.5rem;
+            margin-bottom: .7rem;
+        }
+
+        .shot-name {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: .5rem;
+        }
+
+        .shot-def {
+            color: var(--muted);
+            font-size: .87rem;
+            line-height: 1.65;
+        }
+
+        .example-prompt {
+            font-family: 'Fira Code', monospace;
+            background: rgba(129, 140, 248, .08);
+            border: 1px solid rgba(129, 140, 248, .2);
+            border-radius: 10px;
+            padding: .8rem 1rem;
+            font-size: .8rem;
+            color: var(--accent);
+            margin-top: .8rem;
+            line-height: 1.5;
+        }
+
+        /* ─── TAKEAWAY ─── */
+        .takeaway {
+            background: linear-gradient(135deg, rgba(129, 140, 248, .12), rgba(52, 211, 153, .1));
+            border: 1px solid rgba(129, 140, 248, .3);
+            border-radius: 22px;
+            padding: 3rem;
+            text-align: center;
+        }
+
+        .takeaway h2 {
+            font-size: 1.9rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .takeaway p {
+            color: var(--muted);
+            font-size: .97rem;
+            line-height: 1.8;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* ─── SUMMARY BULLETS ─── */
+        .bullet-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: .9rem;
+            margin-top: 1.5rem;
+        }
+
+        .bullet-list li {
+            display: flex;
+            gap: .9rem;
+            align-items: flex-start;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1rem 1.2rem;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity .5s, transform .5s;
+        }
+
+        .bullet-list li.vis {
+            opacity: 1;
+            transform: none;
+        }
+
+        .bullet-list li:hover {
+            box-shadow: 0 8px 24px rgba(129, 140, 248, .12);
+        }
+
+        .bl-ico {
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .bl-text {
+            font-size: .88rem;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        .bl-text strong {
+            color: var(--text);
+        }
+
+        /* chips */
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+            margin-top: 1rem;
+        }
+
+        .chip {
+            padding: .3rem .8rem;
+            border-radius: 999px;
+            font-size: .75rem;
+            font-weight: 700;
+            border: 1.5px solid;
+        }
+
+        .chi {
+            border-color: rgba(129, 140, 248, .4);
+            color: var(--accent);
+            background: rgba(129, 140, 248, .08);
+        }
+
+        .chg {
+            border-color: rgba(52, 211, 153, .35);
+            color: var(--accent2);
+            background: rgba(52, 211, 153, .07);
+        }
+
+        .chp {
+            border-color: rgba(244, 114, 182, .35);
+            color: var(--accent3);
+            background: rgba(244, 114, 182, .07);
+        }
+
+        .chy {
+            border-color: rgba(251, 191, 36, .35);
+            color: var(--accent4);
+            background: rgba(251, 191, 36, .07);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--muted);
+            font-size: .8rem;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="bar"></div>
+
+    <nav>
+        <a class="back" href="../index.html">← Index</a>
+        <a href="#rnn">RNN vs Transformer</a>
+        <a href="#attention">Attention</a>
+        <a href="#multihead">Multi-Head</a>
+        <a href="#howto">How To Use</a>
+        <a href="#whento">When to Use</a>
+        <a href="#summary">Summary</a>
+    </nav>
+
+    <!-- ══════════════════════════════ HERO ══════════════════════════════ -->
+    <div class="hero">
+        <div class="orb orb1"></div>
+        <div class="orb orb2"></div>
+        <div class="orb orb3"></div>
+        <div class="hero-chip">📓 Personal Notes</div>
+        <h1>Understanding<br><span>Transformers</span></h1>
+        <p>A visual, beginner-friendly breakdown of attention mechanisms, multi-head attention, and why transformers
+            replaced RNNs — Chapter 1 notes.</p>
+        <div class="hero-meta">
+            <span>📚 Chapter 1</span>
+            <span>🎯 5 Concepts</span>
+            <span>✍️ Personal Study Notes</span>
+        </div>
+        <div class="scroll-cue">Scroll to explore</div>
+    </div>
+
+    <!-- ══════════════════════════════ PART 1: WHY TRANSFORMERS ══════════════════════════════ -->
+    <section id="rnn">
+        <div class="s-label">Part 01</div>
+        <div class="s-title">Why Did We Need Transformers?</div>
+        <p class="s-sub">Before transformers, Recurrent Neural Networks (RNNs) — specifically LSTMs — were the go-to
+            model for language tasks. But they had critical weaknesses that transformers were designed to solve.</p>
+
+        <div class="flex-row" style="margin-bottom:2rem;">
+            <div class="spec">
+                <span class="badge b-pink">🐢 RNN / LSTM (Old Way)</span>
+                <h3>Processes One Word at a Time</h3>
+                <p>RNNs iterate through words <em>sequentially</em>. Each word is processed, a "recurrent state" is
+                    updated, and that state is passed forward to the next word.</p>
+                <ul style="margin-top:.7rem;">
+                    <li>Sequential — cannot parallelise</li>
+                    <li>Forgets early words in long sentences</li>
+                    <li>Slow to train on large datasets</li>
+                    <li>Struggles with long-term dependencies</li>
+                </ul>
+            </div>
+            <div class="spec">
+                <span class="badge b-green">⚡ Transformer (New Way)</span>
+                <h3>Processes Entire Sequence at Once</h3>
+                <p>Transformers calculate an <strong>attention score</strong> for every word against every other word —
+                    simultaneously — giving a full picture of the sentence in one pass.</p>
+                <ul style="margin-top:.7rem;">
+                    <li>Parallel processing — dramatically faster</li>
+                    <li>Sees all words simultaneously — no forgetting</li>
+                    <li>Handles long-term dependencies perfectly</li>
+                    <li>BLEU score of 41 in just 3.5 days of training</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- RNN Animation Diagram -->
+        <div class="diagram-box">
+            <p
+                style="font-size:.72rem;font-weight:700;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:1.5rem;">
+                Fig 1.1 — How an RNN processes "I don't speak French"</p>
+            <div class="rnn-diagram">
+                <!-- Encoder group -->
+                <div class="rnn-group">
+                    <div class="rnn-label">Encoder</div>
+                    <div class="rnn-cells">
+                        <div class="rnn-cell enc">h₁</div>
+                        <div class="rnn-arrow">→</div>
+                        <div class="rnn-cell enc">h₂</div>
+                        <div class="rnn-arrow">→</div>
+                        <div class="rnn-cell enc">h₃</div>
+                        <div class="rnn-arrow">→</div>
+                        <div class="rnn-cell enc">h₄</div>
+                    </div>
+                    <div class="word-row">
+                        <div class="word">I</div>
+                        <div class="word">don't</div>
+                        <div class="word">speak</div>
+                        <div class="word">French</div>
+                    </div>
+                </div>
+                <!-- Context vector arrow -->
+                <div class="rnn-arrow cv">⟹<br><span
+                        style="font-size:.7rem;display:block;color:var(--accent4);">context<br>vector</span></div>
+                <!-- Decoder group -->
+                <div class="rnn-group">
+                    <div class="rnn-label">Decoder</div>
+                    <div class="rnn-cells">
+                        <div class="rnn-cell dec">d₁</div>
+                        <div class="rnn-arrow">→</div>
+                        <div class="rnn-cell dec">d₂</div>
+                        <div class="rnn-arrow">→</div>
+                        <div class="rnn-cell dec">d₃</div>
+                        <div class="rnn-arrow">→</div>
+                        <div class="rnn-cell dec">d₄</div>
+                        <div class="rnn-arrow">→</div>
+                        <div class="rnn-cell dec">d₅</div>
+                    </div>
+                    <div class="word-row">
+                        <div class="word">Je</div>
+                        <div class="word">ne</div>
+                        <div class="word">parle</div>
+                        <div class="word">pas</div>
+                        <div class="word">français</div>
+                    </div>
+                </div>
+            </div>
+            <div class="caption"><strong>Key Problem:</strong> The entire meaning of "I don't speak French" must be
+                squashed into a single fixed context vector before the decoder can begin. For long sentences, early
+                information is lost — the context vector becomes a bottleneck.</div>
+        </div>
+
+        <!-- Transformer flow diagram -->
+        <div class="diagram-box">
+            <p
+                style="font-size:.72rem;font-weight:700;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:.5rem;">
+                Fig 1.2 — How a Transformer processes the same sentence</p>
+            <div class="tf-flow">
+                <div class="tf-box input">
+                    <div class="tf-title">Input</div>
+                    <div class="tf-sub">"I don't speak French"</div>
+                </div>
+                <div class="tf-arrow">→</div>
+                <div class="tf-box enc">
+                    <div class="tf-title">Encoder</div>
+                    <div class="tf-sub">+ Attention</div>
+                </div>
+                <div class="tf-arrow">→</div>
+                <div class="tf-box attn">
+                    <div class="tf-title">Attention Scores</div>
+                    <div class="tf-sub">Contextual<br>representations</div>
+                </div>
+                <div class="tf-arrow">→</div>
+                <div class="tf-box dec">
+                    <div class="tf-title">Decoder</div>
+                    <div class="tf-sub">+ Attention</div>
+                </div>
+                <div class="tf-arrow">→</div>
+                <div class="tf-box output">
+                    <div class="tf-title">Output</div>
+                    <div class="tf-sub">"Je ne parle pas français"</div>
+                </div>
+            </div>
+            <div class="caption"><strong>Key Advantage:</strong> Instead of a single context vector, the transformer
+                passes rich <em>attention scores</em> that capture how every word relates to every other word — no
+                information bottleneck.</div>
+        </div>
+
+        <div class="tbl-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>RNN / LSTM</th>
+                        <th>Transformer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Processing</td>
+                        <td>Sequential (one word at a time)</td>
+                        <td>Parallel (all words at once) <span class="tag-good">Faster</span></td>
+                    </tr>
+                    <tr>
+                        <td>Long-term memory</td>
+                        <td>Degrades with sequence length <span class="tag-bad">Weak</span></td>
+                        <td>Equal attention across all positions <span class="tag-good">Strong</span></td>
+                    </tr>
+                    <tr>
+                        <td>Training speed</td>
+                        <td>Slow (cannot parallelise)</td>
+                        <td>Very fast <span class="tag-good">3.5 days</span></td>
+                    </tr>
+                    <tr>
+                        <td>Architecture key</td>
+                        <td>Recurrent state (hidden vector)</td>
+                        <td>Attention scores</td>
+                    </tr>
+                    <tr>
+                        <td>Introduced in</td>
+                        <td>1990s</td>
+                        <td>NIPS 2017 — "Attention Is All You Need"</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════ PART 2: ATTENTION ══════════════════════════════ -->
+    <section id="attention">
+        <div class="s-label">Part 02</div>
+        <div class="s-title">The Attention Mechanism</div>
+        <p class="s-sub">Attention is the secret ingredient. It lets the model ask: <em>"When trying to understand this
+                word, which other words matter most?"</em> and assign weights accordingly.</p>
+
+        <!-- Interactive attention demo -->
+        <div class="attn-demo" style="margin-bottom:1.5rem;">
+            <p
+                style="font-size:.72rem;font-weight:700;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:1.5rem;">
+                Fig 1.3 — Attention scores when translating "speak" → "parle"</p>
+            <div class="sent-row">
+                <div class="word-bubble">I</div>
+                <div class="word-bubble strong">don't</div>
+                <div class="word-bubble focus">speak ⭐</div>
+                <div class="word-bubble medium">French</div>
+            </div>
+            <!-- SVG arcs representing attention weights -->
+            <svg class="attn-svg" width="340" height="80" viewBox="0 0 340 80" style="margin:0 auto;display:block;">
+                <!-- I → parle (weak) -->
+                <path d="M 45 10 Q 170 -30 195 70" stroke="rgba(129,140,248,0.25)" stroke-width="1.5" fill="none" />
+                <!-- don't → parle (strong) -->
+                <path d="M 120 10 Q 160 -10 195 70" stroke="rgba(129,140,248,0.7)" stroke-width="3.5" fill="none" />
+                <!-- speak → parle (very strong, self) -->
+                <path d="M 195 10 Q 195 40 195 70" stroke="rgba(251,191,36,0.9)" stroke-width="5" fill="none" />
+                <!-- French → parle (medium) -->
+                <path d="M 280 10 Q 230 -10 195 70" stroke="rgba(129,140,248,0.5)" stroke-width="2.5" fill="none" />
+                <!-- Target word -->
+                <ellipse cx="195" cy="73" rx="28" ry="10" fill="rgba(251,191,36,0.18)" stroke="rgba(251,191,36,0.7)"
+                    stroke-width="1.5" />
+                <text x="195" y="77" text-anchor="middle" font-size="10" fill="#fbbf24" font-weight="bold"
+                    font-family="Inter,sans-serif">parle</text>
+            </svg>
+            <div class="attn-label">Line thickness = attention weight. <strong
+                    style="color:var(--accent4);">"speak"</strong> has the strongest self-attention; <strong
+                    style="color:var(--accent);">"don't"</strong> also matters a lot for context.</div>
+
+            <div
+                style="margin-top:1.5rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.8rem;">
+                <div style="background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:1rem;">
+                    <div style="font-size:.7rem;font-weight:700;color:var(--accent4);letter-spacing:.1em;">HIGH
+                        ATTENTION</div>
+                    <div style="font-size:.88rem;color:var(--text);margin-top:.3rem;">speak → parle (direct translation)
+                    </div>
+                </div>
+                <div style="background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:1rem;">
+                    <div style="font-size:.7rem;font-weight:700;color:var(--accent);letter-spacing:.1em;">MEDIUM
+                        ATTENTION</div>
+                    <div style="font-size:.88rem;color:var(--text);margin-top:.3rem;">don't → parle (negation context)
+                    </div>
+                </div>
+                <div style="background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:1rem;">
+                    <div style="font-size:.7rem;font-weight:700;color:var(--muted);letter-spacing:.1em;">LOW ATTENTION
+                    </div>
+                    <div style="font-size:.88rem;color:var(--text);margin-top:.3rem;">I → parle (less relevant)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-ico">⚖️</div>
+                <div class="card-title">Attention Scores</div>
+                <div class="card-body">A number computed for every word-pair. Higher score = stronger relationship.
+                    These scores tell the model where to "focus" when encoding each word.</div>
+            </div>
+            <div class="card">
+                <div class="card-ico">🎯</div>
+                <div class="card-title">Context-Aware Encoding</div>
+                <div class="card-body">Unlike an RNN's single context vector, each word in a transformer gets its own
+                    context-aware representation based on its attention scores with every other word.</div>
+            </div>
+            <div class="card">
+                <div class="card-ico">🔀</div>
+                <div class="card-title">Parallel Computation</div>
+                <div class="card-body">All attention scores are calculated at once using matrix multiplication — no
+                    waiting for word 1 before computing word 2. This is why transformers are so fast.</div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════ PART 3: MULTI-HEAD ══════════════════════════════ -->
+    <section id="multihead">
+        <div class="s-label">Part 03</div>
+        <div class="s-title">Multi-Head Attention</div>
+        <p class="s-sub">One attention head sees one type of relationship. Multi-head attention runs <em>several</em>
+            attention heads in parallel — each learning a different aspect of the sentence — then combines their
+            outputs.</p>
+
+        <!-- Sentiment Example -->
+        <div class="sent-analysis">
+            <p
+                style="font-size:.72rem;font-weight:700;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:1rem;">
+                Fig 1.4 — "The movie was not bad" — Multi-head detects the inversion</p>
+            <div class="sent-words">
+                <span class="sw neutral">The</span>
+                <span class="sw neutral">movie</span>
+                <span class="sw neutral">was</span>
+                <span class="sw inv">not 🔄</span>
+                <span class="sw neg">bad</span>
+            </div>
+            <!-- Curved arch between "not" and "bad" -->
+            <svg class="curve-svg" width="320" height="60" viewBox="0 0 320 60">
+                <path d="M 155 10 Q 210 -25 255 10" stroke="#f472b6" stroke-width="2.5" fill="none"
+                    stroke-dasharray="5 3" />
+                <text x="207" y="8" text-anchor="middle" font-size="10" fill="#fbbf24" font-family="Inter,sans-serif"
+                    font-weight="bold">Inverts</text>
+                <path d="M 100 50 Q 175 90 255 50" stroke="rgba(129,140,248,.5)" stroke-width="1.5" fill="none" />
+                <text x="178" y="68" text-anchor="middle" font-size="9" fill="rgba(129,140,248,.7)"
+                    font-family="Inter,sans-serif">Property of</text>
+            </svg>
+            <div style="text-align:center;margin-top:.5rem;font-size:.85rem;color:var(--accent2);font-weight:700;">→
+                Overall sentiment: POSITIVE ✓</div>
+            <div class="caption">An LSTM would likely see "bad" and classify as negative. Multi-head attention catches
+                the <strong>"not" ↔ "bad"</strong> inversion relationship simultaneously, yielding the correct positive
+                classification.</div>
+        </div>
+
+        <div class="mh-grid">
+            <div class="head-card">
+                <div class="head-num">🔵</div>
+                <div class="head-title">Head 1 — Syntax</div>
+                <div class="head-desc">Focuses on grammatical relationships: subject–verb–object structure, parts of
+                    speech.</div>
+            </div>
+            <div class="head-card">
+                <div class="head-num">🟣</div>
+                <div class="head-title">Head 2 — Negation</div>
+                <div class="head-desc">Specialises in detecting negation words ("not", "never", "no") and their targets.
+                </div>
+            </div>
+            <div class="head-card">
+                <div class="head-num">🟢</div>
+                <div class="head-title">Head 3 — Sentiment</div>
+                <div class="head-desc">Attends to emotionally charged words and how they relate to the overall topic.
+                </div>
+            </div>
+            <div class="head-card">
+                <div class="head-num">🟡</div>
+                <div class="head-title">Head 4 — Co-reference</div>
+                <div class="head-desc">Tracks pronouns and references — "he", "it", "they" — back to the nouns they
+                    refer to.</div>
+            </div>
+        </div>
+
+        <div
+            style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:2rem;margin-top:2rem;">
+            <div
+                style="font-size:.7rem;font-weight:700;color:var(--accent);letter-spacing:.15em;text-transform:uppercase;margin-bottom:1rem;">
+                Why Multi-Head Beats Single Attention</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;">
+                <div style="color:var(--muted);font-size:.86rem;"><span
+                        style="color:var(--accent2);font-weight:700;">Multiple perspectives</span> — each head learns
+                    different linguistic relationships independently.</div>
+                <div style="color:var(--muted);font-size:.86rem;"><span
+                        style="color:var(--accent2);font-weight:700;">Combined output</span> — results from all heads
+                    are concatenated and projected, merging all insights.</div>
+                <div style="color:var(--muted);font-size:.86rem;"><span
+                        style="color:var(--accent2);font-weight:700;">BLEU score of 41</span> — the original transformer
+                    achieved this on English-to-French in only <strong style="color:var(--text);">3.5 days</strong>.
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-row">
+            <div class="stat">
+                <div class="stat-num">41</div>
+                <div class="stat-lbl">BLEU Score — English→French translation (higher is better; near-human quality)
+                </div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">3.5</div>
+                <div class="stat-lbl">Days to train the original transformer (vs weeks for LSTMs for comparable quality)
+                </div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">2017</div>
+                <div class="stat-lbl">Year "Attention Is All You Need" was published at NIPS</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">5 yrs</div>
+                <div class="stat-lbl">From first transformer to ChatGPT — the fastest paradigm shift in AI history</div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════ PART 4: HOW TO USE ══════════════════════════════ -->
+    <section id="howto">
+        <div class="s-label">Part 04</div>
+        <div class="s-title">How To Use Transformers</div>
+        <p class="s-sub">You don't need to build a transformer from scratch. The <strong>HuggingFace Transformers
+                library</strong> gives you access to thousands of pre-trained models with just a few lines of code.</p>
+
+        <div class="flex-row" style="margin-bottom:2rem;">
+            <div class="spec">
+                <span class="badge b-yellow">🤗 HuggingFace</span>
+                <h3>Pre-Trained Models</h3>
+                <p>Models already trained on millions of documents — they know grammar, context, semantics. You simply
+                    <em>fine-tune</em> for your specific task using a small labelled dataset.</p>
+                <div class="chips"><span class="chip chi">BERT</span><span class="chip chi">GPT-2</span><span
+                        class="chip chi">T5</span><span class="chip chi">RoBERTa</span><span
+                        class="chip chi">DistilBERT</span></div>
+            </div>
+            <div class="spec">
+                <span class="badge b-sky">⚡ GPU Computing</span>
+                <h3>Cloud Compute</h3>
+                <p>Transformers are computationally intensive. GPUs excel at the parallel matrix operations they
+                    require. No GPU? Use cloud services — free options exist.</p>
+                <div class="chips"><span class="chip chg">Google Colab</span><span
+                        class="chip chg">Paperspace</span><span class="chip chg">Kaggle Notebooks</span></div>
+            </div>
+        </div>
+
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:2rem;">
+            <div
+                style="font-size:.72rem;font-weight:700;letter-spacing:.12em;color:var(--accent2);text-transform:uppercase;margin-bottom:1rem;">
+                Pre-Training → Fine-Tuning Pipeline</div>
+            <div style="display:flex;gap:.8rem;align-items:center;flex-wrap:wrap;">
+                <div
+                    style="background:var(--card2);border:1px solid rgba(129,140,248,.3);border-radius:12px;padding:1rem 1.4rem;text-align:center;">
+                    <div style="font-size:.95rem;font-weight:800;">Pre-Train</div>
+                    <div style="font-size:.75rem;color:var(--muted);margin-top:.2rem;">Millions of documents<br>Learns
+                        language patterns</div>
+                </div>
+                <div style="font-size:1.5rem;color:var(--accent2);">→</div>
+                <div
+                    style="background:var(--card2);border:1px solid rgba(52,211,153,.3);border-radius:12px;padding:1rem 1.4rem;text-align:center;">
+                    <div style="font-size:.95rem;font-weight:800;">Fine-Tune</div>
+                    <div style="font-size:.75rem;color:var(--muted);margin-top:.2rem;">Small task dataset<br>(e.g.
+                        sentiment labels)</div>
+                </div>
+                <div style="font-size:1.5rem;color:var(--accent2);">→</div>
+                <div
+                    style="background:var(--card2);border:1px solid rgba(251,191,36,.3);border-radius:12px;padding:1rem 1.4rem;text-align:center;">
+                    <div style="font-size:.95rem;font-weight:800;">Deploy</div>
+                    <div style="font-size:.75rem;color:var(--muted);margin-top:.2rem;">Task-specific model<br>ready in
+                        hours</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════ PART 5: WHEN TO USE ══════════════════════════════ -->
+    <section id="whento">
+        <div class="s-label">Part 05</div>
+        <div class="s-title">When &amp; Why To Use Transformers</div>
+        <p class="s-sub">Transformers aren't just for text — and advanced techniques like zero-shot and few-shot
+            learning make them extremely versatile.</p>
+
+        <div class="shot-row" style="margin-bottom:2rem;">
+            <div class="shot-box">
+                <div class="shot-icon">🎯</div>
+                <div class="shot-name">Zero-Shot Learning</div>
+                <div class="shot-def">The model handles tasks it was <em>never explicitly trained for</em>, using its
+                    broad pre-existing knowledge to infer and generalise. No task-specific training examples needed.
+                </div>
+                <div class="example-prompt">classify("This film was fantastic!", labels=["positive", "negative",
+                    "neutral"])<br># → No labelled examples needed!</div>
+            </div>
+            <div class="shot-box">
+                <div class="shot-icon">🔍</div>
+                <div class="shot-name">Few-Shot Learning</div>
+                <div class="shot-def">The model learns a new task from just <em>a handful of examples</em>, leveraging
+                    its pre-existing knowledge. 5–10 examples can outperform traditional models trained on thousands.
+                </div>
+                <div class="example-prompt">prompt = """Positive: "I loved it!"<br>Negative: "It was boring."<br>What
+                    is: "Not bad at all"? →"""</div>
+            </div>
+        </div>
+
+        <div class="grid" style="margin-bottom:2rem;">
+            <div class="card">
+                <div class="card-ico">📝</div>
+                <div class="card-title">NLP Tasks</div>
+                <div class="card-body">Text classification, sentiment analysis, translation, summarisation, question
+                    answering, named entity recognition. The original stronghold of transformers.</div>
+            </div>
+            <div class="card">
+                <div class="card-ico">🖼️</div>
+                <div class="card-title">Vision (ViT)</div>
+                <div class="card-body">Vision Transformers treat image patches like word tokens. Competing with and
+                    often surpassing CNNs on image classification tasks.</div>
+            </div>
+            <div class="card">
+                <div class="card-ico">🎵</div>
+                <div class="card-title">Audio &amp; Multimodal</div>
+                <div class="card-body">Transformers now underpin speech recognition (Whisper), music generation, and
+                    multimodal models that understand both text and images simultaneously.</div>
+            </div>
+        </div>
+
+        <!-- Limitations -->
+        <div
+            style="background:linear-gradient(135deg,rgba(244,114,182,.08),rgba(251,191,36,.06));border:1px solid rgba(244,114,182,.25);border-radius:18px;padding:2rem;">
+            <div
+                style="font-size:.7rem;font-weight:700;letter-spacing:.15em;color:var(--accent3);text-transform:uppercase;margin-bottom:1rem;">
+                ⚠️ Limitations to Be Aware Of</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;">
+                <div style="color:var(--muted);font-size:.86rem;"><span
+                        style="color:var(--accent3);font-weight:700;">Domain specificity</span> — Billion-parameter
+                    models can underperform in specialised domains like healthcare or legal where domain-specific
+                    context is critical.</div>
+                <div style="color:var(--muted);font-size:.86rem;"><span
+                        style="color:var(--accent3);font-weight:700;">Computational cost</span> — Large models (110M →
+                    175B parameters) are expensive to deploy, especially in real-time systems requiring low latency.
+                </div>
+                <div style="color:var(--muted);font-size:.86rem;"><span
+                        style="color:var(--accent3);font-weight:700;">Choose wisely</span> — A smaller fine-tuned model
+                    often outperforms a giant general-purpose one on specific tasks, at a fraction of the cost.</div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════ SUMMARY ══════════════════════════════ -->
+    <section id="summary">
+        <div class="s-label">Summary</div>
+        <div class="s-title">Key Takeaways</div>
+        <ul class="bullet-list">
+            <li>
+                <span class="bl-ico">⚡</span>
+                <span class="bl-text"><strong>Transformers use attention + multi-head attention</strong> — spotlighting
+                    the most important words when encoding each part of a sentence, unlike RNNs that maintain a single
+                    recurrent state.</span>
+            </li>
+            <li>
+                <span class="bl-ico">🔀</span>
+                <span class="bl-text"><strong>Attention scores replace recurrent states</strong> — every word gets a
+                    rich context-aware representation rather than fighting for space in one fixed-size vector.</span>
+            </li>
+            <li>
+                <span class="bl-ico">👁️</span>
+                <span class="bl-text"><strong>Multi-head attention = multiple perspectives</strong> — several attention
+                    heads run in parallel, each learning different linguistic patterns (syntax, negation, coreference,
+                    etc.).</span>
+            </li>
+            <li>
+                <span class="bl-ico">🚀</span>
+                <span class="bl-text"><strong>Transformers handle long-term dependencies</strong> — equal access to all
+                    positions in the sequence means information from word 1 is never "forgotten" by word 100.</span>
+            </li>
+            <li>
+                <span class="bl-ico">📅</span>
+                <span class="bl-text"><strong>BLEU 41 in 3.5 days</strong> — equivalent state-of-the-art performance
+                    achieved in a tiny fraction of the training time previously required, revolutionising the
+                    field.</span>
+            </li>
+            <li>
+                <span class="bl-ico">🎯</span>
+                <span class="bl-text"><strong>Zero-shot &amp; few-shot learning</strong> — advanced techniques that
+                    allow large pre-trained models to generalise to unseen tasks with zero or very few examples.</span>
+            </li>
+            <li>
+                <span class="bl-ico">⚠️</span>
+                <span class="bl-text"><strong>Limitations exist</strong> — billion-parameter models can struggle in
+                    specialised domains and have high compute/memory demands. Always choose the right-sized model for
+                    your task.</span>
+            </li>
+        </ul>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+        <div class="takeaway">
+            <div style="font-size:3rem;margin-bottom:1rem;">🎓</div>
+            <h2>The Big Idea</h2>
+            <p>The transformer's core innovation is elegantly simple: instead of processing sequences
+                <em>step-by-step</em> and accumulating a single memory state, it asks <em>"How does every word relate to
+                    every other word?"</em> all at once. This attention-based view of language is so powerful it took
+                the field from weeks of training to days — and gave rise to everything from ChatGPT to
+                Gemini.<br><br><em>Next up: Chapter 2 — Inside the Encoder &amp; Decoder</em></p>
+        </div>
+    </section>
+
+    <footer>Personal Study Notes · Transformers Ch. 1 · 2026 &nbsp;|&nbsp; Based on "Transformers for NLP" textbook
+    </footer>
+
+    <script>
+        // Progress bar
+        window.addEventListener('scroll', () => {
+            const d = document.documentElement;
+            document.getElementById('bar').style.width = (d.scrollTop / (d.scrollHeight - d.clientHeight) * 100) + '%';
+        });
+
+        // Intersection observer
+        const obs = new IntersectionObserver(e => {
+            e.forEach(en => {
+                if (en.isIntersecting) {
+                    setTimeout(() => en.target.classList.add('vis'), en.target.dataset.d || 0);
+                }
+            });
+        }, { threshold: .1 });
+
+        document.querySelectorAll('.card,.spec,.head-card,.stat,.bullet-list li').forEach((el, i) => {
+            el.dataset.d = (i % 5) * 90;
+            obs.observe(el);
+        });
+    </script>
+</body>
+
+</html>

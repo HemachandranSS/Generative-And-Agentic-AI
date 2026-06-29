@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sentiment Analysis — Visual Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0d0f14;
+      --surface-1: #151820;
+      --surface-2: #1c2030;
+      --surface-3: #232840;
+      --border: rgba(255, 255, 255, .08);
+      --border-strong: rgba(255, 255, 255, .14);
+
+      --text-primary: #e8eaf2;
+      --text-secondary: #9ba3c0;
+      --text-muted: #5a6280;
+
+      --accent: #7c6af7;
+      --accent-dim: rgba(124, 106, 247, .15);
+      --accent-border: rgba(124, 106, 247, .35);
+
+      --green: #34d399;
+      --green-dim: rgba(52, 211, 153, .12);
+      --green-border: rgba(52, 211, 153, .3);
+
+      --red: #f87171;
+      --red-dim: rgba(248, 113, 113, .12);
+      --red-border: rgba(248, 113, 113, .3);
+
+      --amber: #fbbf24;
+      --amber-dim: rgba(251, 191, 36, .1);
+      --amber-border: rgba(251, 191, 36, .3);
+
+      --blue: #60a5fa;
+      --blue-dim: rgba(96, 165, 250, .12);
+
+      --font: 'Inter', system-ui, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      --radius: 10px;
+      --radius-lg: 14px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* ── Layout ── */
+    .page {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 4rem;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-border);
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 14px;
+    }
+
+    .hero-title {
+      font-size: clamp(24px, 5vw, 36px);
+      font-weight: 600;
+      letter-spacing: -.02em;
+      background: linear-gradient(135deg, #e8eaf2 30%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    .hero-sub {
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 1.75rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-family: var(--font);
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all .18s;
+    }
+
+    .tab-btn:hover {
+      border-color: var(--border-strong);
+      color: var(--text-primary);
+    }
+
+    .tab-btn.active {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border-color: var(--accent-border);
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+    }
+
+    .card-label {
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    /* ── Pipeline ── */
+    .pipeline {
+      display: grid;
+      gap: 0;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .stage {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      animation: fadeUp .35s ease both;
+    }
+
+    .stage.accent-stage {
+      background: var(--accent-dim);
+      border-color: var(--accent-border);
+    }
+
+    .stage-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .stage-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--surface-3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .stage-title {
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .stage-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .connector {
+      width: 2px;
+      height: 22px;
+      margin: 0 auto;
+      background: linear-gradient(to bottom, var(--border-strong), transparent);
+      position: relative;
+    }
+
+    .connector::after {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid var(--border-strong);
+    }
+
+    /* ── Tokens / badges ── */
+    .token {
+      display: inline-flex;
+      align-items: center;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      border-radius: 6px;
+      font-size: 12px;
+      padding: 2px 8px;
+      font-family: var(--mono);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 100px;
+      font-weight: 500;
+      letter-spacing: .02em;
+    }
+
+    .badge-green {
+      background: var(--green-dim);
+      color: var(--green);
+      border: 1px solid var(--green-border);
+    }
+
+    .badge-red {
+      background: var(--red-dim);
+      color: var(--red);
+      border: 1px solid var(--red-border);
+    }
+
+    .badge-amber {
+      background: var(--amber-dim);
+      color: var(--amber);
+      border: 1px solid var(--amber-border);
+    }
+
+    .badge-accent {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border: 1px solid var(--accent-border);
+    }
+
+    .badge-muted {
+      background: var(--surface-3);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    /* ── Code blocks ── */
+    .code-block {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      overflow-x: auto;
+      position: relative;
+      white-space: pre-wrap;
+      /* Wrap long lines */
+    }
+
+    .code-block .kw {
+      color: var(--accent);
+    }
+
+    .code-block .cm {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .code-block .st {
+      color: var(--green);
+    }
+
+    .code-block .fn {
+      color: var(--blue);
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 6px;
+      font-size: 11px;
+      padding: 4px 9px;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: all .15s;
+    }
+
+    .copy-btn:hover {
+      color: var(--text-primary);
+      border-color: var(--border-strong);
+    }
+
+    /* ── Model cards ── */
+    .model-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+    }
+
+    .model-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      transition: border-color .18s;
+    }
+
+    .model-card:hover {
+      border-color: var(--border-strong);
+    }
+
+    .model-icon {
+      font-size: 22px;
+      margin-bottom: 6px;
+    }
+
+    .model-name {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .model-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .model-acc {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    /* ── Accuracy chart ── */
+    .acc-chart {
+      display: grid;
+      gap: 10px;
+    }
+
+    .acc-row {
+      display: grid;
+      grid-template-columns: 90px 1fr 42px;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .acc-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-align: right;
+    }
+
+    .acc-track {
+      height: 8px;
+      background: var(--surface-3);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+
+    .acc-fill {
+      height: 100%;
+      border-radius: 100px;
+      animation: barGrow .9s cubic-bezier(.4, 0, .2, 1) both;
+      --w: 0%;
+    }
+
+    .acc-val {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* ── Output cards ── */
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 12px;
+      background: var(--surface-2);
+      border-radius: 8px;
+      font-size: 12px;
+      gap: 10px;
+      animation: slideIn .3s ease both;
+    }
+
+    .result-row .text {
+      color: var(--text-secondary);
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ── Live demo ── */
+    .demo-textarea {
+      width: 100%;
+      resize: vertical;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.6;
+      transition: border-color .18s;
+      min-height: 90px;
+    }
+
+    .demo-textarea:focus {
+      outline: none;
+      border-color: var(--accent-border);
+    }
+
+    .demo-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: opacity .18s, transform .1s;
+    }
+
+    .demo-btn:hover {
+      opacity: .88;
+    }
+
+    .demo-btn:active {
+      transform: scale(.98);
+    }
+
+    .demo-btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .result-card {
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      border: 1px solid;
+      display: none;
+      animation: fadeUp .3s ease;
+    }
+
+    .result-card.positive {
+      background: var(--green-dim);
+      border-color: var(--green-border);
+    }
+
+    .result-card.negative {
+      background: var(--red-dim);
+      border-color: var(--red-border);
+    }
+
+    .result-card.neutral {
+      background: var(--surface-1);
+      border-color: var(--border);
+    }
+
+    .meter-track {
+      height: 8px;
+      background: var(--surface-3);
+      border-radius: 100px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .meter-fill {
+      height: 100%;
+      border-radius: 100px;
+      transition: width .6s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .signal-pill {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 9px;
+      border-radius: 100px;
+      margin: 2px;
+    }
+
+    .signal-pos {
+      background: var(--green-dim);
+      color: var(--green);
+      border: 1px solid var(--green-border);
+    }
+
+    .signal-neg {
+      background: var(--red-dim);
+      color: var(--red);
+      border: 1px solid var(--red-border);
+    }
+
+    /* ── Spinner ── */
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, .2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      display: inline-block;
+      animation: spin .7s linear infinite;
+      vertical-align: middle;
+    }
+
+    /* ── Tip callout ── */
+    .tip {
+      background: var(--amber-dim);
+      border: 1px solid var(--amber-border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .tip-icon {
+      color: var(--amber);
+      flex-shrink: 0;
+      font-size: 14px;
+    }
+
+    /* ── Polarity guide ── */
+    .polarity-track {
+      height: 10px;
+      border-radius: 100px;
+      overflow: hidden;
+      background: linear-gradient(90deg, var(--red) 0%, var(--surface-3) 50%, var(--green) 100%);
+      position: relative;
+      margin: 8px 0;
+    }
+
+    .polarity-needle {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid rgba(0, 0, 0, .4);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, .3);
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-8px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    @keyframes barGrow {
+      from {
+        width: 0
+      }
+
+      to {
+        width: var(--w)
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    /* ── Section stagger ── */
+    .stage:nth-child(1) {
+      animation-delay: .04s
+    }
+
+    .stage:nth-child(3) {
+      animation-delay: .10s
+    }
+
+    .stage:nth-child(5) {
+      animation-delay: .17s
+    }
+
+    .stage:nth-child(7) {
+      animation-delay: .24s
+    }
+
+    .stage:nth-child(9) {
+      animation-delay: .31s
+    }
+
+    .stage:nth-child(11) {
+      animation-delay: .38s
+    }
+
+    .stage:nth-child(13) {
+      animation-delay: .45s
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0s !important;
+      }
+    }
+
+    /* ── Dividers ── */
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.25rem 0;
+    }
+
+    /* ── Section grid ── */
+    .sec-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    /* BERT highlight box */
+    .bert-box {
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-border);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bert-glow {
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 150px;
+      height: 150px;
+      background: radial-gradient(circle, rgba(124, 106, 247, .25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <!-- Hero -->
+    <div class="hero">
+      <div style="margin-bottom:10px">
+        <span class="hero-eyebrow">🧠 NLP · Machine Learning</span>
+      </div>
+      <h1 class="hero-title">Sentiment Analysis</h1>
+      <p class="hero-sub">From raw text to emotional insight — pipeline, models, code &amp; live AI demo</p>
+    </div>
+
+    <!-- Tabs -->
+    <nav class="tabs" role="tablist" aria-label="Guide sections">
+      <button class="tab-btn active" onclick="showSection('pipeline',this)" role="tab">🔄 Pipeline</button>
+      <button class="tab-btn" onclick="showSection('models',this)" role="tab">🤖 Models</button>
+      <button class="tab-btn" onclick="showSection('accuracy',this)" role="tab">📊 Accuracy</button>
+      <button class="tab-btn" onclick="showSection('textblob',this)" role="tab">🐍 TextBlob</button>
+      <button class="tab-btn" onclick="showSection('hf',this)" role="tab">🤗 HuggingFace</button>
+      <button class="tab-btn" onclick="showSection('demo',this)" role="tab">⚡ Live AI Demo</button>
+    </nav>
+
+    <!-- ══ PIPELINE ══ -->
+    <section id="sec-pipeline" role="tabpanel">
+      <div class="pipeline">
+
+        <!-- 1 Input -->
+        <div class="stage accent-stage">
+          <div class="stage-head">
+            <div class="stage-icon" style="background:var(--accent-dim)">⌨️</div>
+            <div>
+              <div class="stage-title" style="color:var(--accent)">Input Text</div>
+              <div class="stage-desc">Raw review, tweet, or comment</div>
+            </div>
+          </div>
+          <div
+            style="font-family:var(--mono);font-size:13px;color:var(--text-secondary);background:var(--surface-3);border-radius:6px;padding:8px 12px">
+            "The mobile features are Amazing!"</div>
+        </div>
+        <div class="connector"></div>
+
+        <!-- 2 Tokenization -->
+        <div class="stage">
+          <div class="stage-head">
+            <div class="stage-icon">✂️</div>
+            <div>
+              <div class="stage-title">Tokenization</div>
+              <div class="stage-desc">Split text into individual tokens</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <span class="token">"The"</span>
+            <span class="token">"mobile"</span>
+            <span class="token">"features"</span>
+            <span class="token">"are"</span>
+            <span class="token" style="border-color:var(--green-border);color:var(--green)">"Amazing"</span>
+          </div>
+        </div>
+        <div class="connector"></div>
+
+        <!-- 3 Pre-processing -->
+        <div class="stage">
+          <div class="stage-head">
+            <div class="stage-icon">🔧</div>
+            <div>
+              <div class="stage-title">Pre-processing</div>
+              <div class="stage-desc">Clean noise &amp; normalise</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <div style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:5px"><span
+                style="color:var(--red)">✕</span> Stop words (the, is…)</div>
+            <div style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:5px"><span
+                style="color:var(--red)">✕</span> URLs &amp; hashtags</div>
+            <div style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:5px"><span
+                style="color:var(--red)">✕</span> Special characters</div>
+            <div style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:5px"><span
+                style="color:var(--amber)">↓</span> Lowercase</div>
+          </div>
+        </div>
+        <div class="connector"></div>
+
+        <!-- 4 Stemming -->
+        <div class="stage">
+          <div class="stage-head">
+            <div class="stage-icon">🌱</div>
+            <div>
+              <div class="stage-title">Stemming / Lemmatization</div>
+              <div class="stage-desc">Reduce words to root form</div>
+            </div>
+          </div>
+          <div
+            style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);flex-wrap:wrap">
+            <span class="token">"running"</span><span style="color:var(--text-muted)">→</span><span class="token"
+              style="border-color:var(--accent-border);color:var(--accent)">"run"</span>
+            <span style="color:var(--border-strong)">·</span>
+            <span class="token">"better"</span><span style="color:var(--text-muted)">→</span><span class="token"
+              style="border-color:var(--accent-border);color:var(--accent)">"good"</span>
+          </div>
+        </div>
+        <div class="connector"></div>
+
+        <!-- 5 Feature extraction -->
+        <div class="stage">
+          <div class="stage-head">
+            <div class="stage-icon">📐</div>
+            <div>
+              <div class="stage-title">Feature Extraction</div>
+              <div class="stage-desc">Convert text to numeric vectors</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap">
+            <span class="badge badge-muted">TF-IDF</span>
+            <span class="badge badge-muted">Bag-of-Words</span>
+            <span class="badge badge-accent">Word2Vec</span>
+            <span class="badge badge-accent">Embeddings</span>
+          </div>
+        </div>
+        <div class="connector"></div>
+
+        <!-- 6 Model -->
+        <div class="stage">
+          <div class="stage-head">
+            <div class="stage-icon">⚙️</div>
+            <div>
+              <div class="stage-title">ML / DL Model</div>
+              <div class="stage-desc">Classify sentiment</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap">
+            <span class="badge badge-muted">SVM</span>
+            <span class="badge badge-muted">Naive Bayes</span>
+            <span class="badge badge-accent">LSTM</span>
+            <span class="badge badge-accent">BERT</span>
+          </div>
+        </div>
+        <div class="connector"></div>
+
+        <!-- 7 Output -->
+        <div class="stage" style="background:transparent;border:none;padding:10px 0 0">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+            <div
+              style="background:var(--green-dim);border:1px solid var(--green-border);border-radius:10px;padding:14px;text-align:center">
+              <div style="font-size:26px;margin-bottom:4px">😊</div>
+              <div style="font-size:13px;font-weight:600;color:var(--green)">Positive</div>
+            </div>
+            <div
+              style="background:var(--surface-1);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
+              <div style="font-size:26px;margin-bottom:4px">😐</div>
+              <div style="font-size:13px;font-weight:600;color:var(--text-secondary)">Neutral</div>
+            </div>
+            <div
+              style="background:var(--red-dim);border:1px solid var(--red-border);border-radius:10px;padding:14px;text-align:center">
+              <div style="font-size:26px;margin-bottom:4px">😞</div>
+              <div style="font-size:13px;font-weight:600;color:var(--red)">Negative</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ MODELS ══ -->
+    <section id="sec-models" style="display:none" role="tabpanel">
+      <div class="sec-grid">
+
+        <div class="card">
+          <div class="card-label">Classical ML</div>
+          <div class="model-grid">
+            <div class="model-card">
+              <div class="model-icon">🌳</div>
+              <div class="model-name">Decision Tree</div>
+              <div class="model-desc">Rule-based feature splits on word presence</div>
+              <div class="model-acc">Acc. ~75–80%</div>
+            </div>
+            <div class="model-card">
+              <div class="model-icon">📊</div>
+              <div class="model-name">Naive Bayes</div>
+              <div class="model-desc">Probabilistic; fast and memory-efficient</div>
+              <div class="model-acc">Acc. ~78–82%</div>
+            </div>
+            <div class="model-card">
+              <div class="model-icon">📏</div>
+              <div class="model-name">SVM</div>
+              <div class="model-desc">Margin-based; strong on TF-IDF features</div>
+              <div class="model-acc">Acc. ~82–87%</div>
+            </div>
+            <div class="model-card">
+              <div class="model-icon">📈</div>
+              <div class="model-name">Logistic Reg.</div>
+              <div class="model-desc">Linear baseline, interpretable weights</div>
+              <div class="model-acc">Acc. ~80–84%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Deep Learning</div>
+          <div style="display:grid;gap:9px">
+            <div class="model-card" style="display:flex;align-items:center;gap:12px;padding:12px 14px">
+              <div style="font-size:22px;flex-shrink:0">🔁</div>
+              <div>
+                <div class="model-name">RNN</div>
+                <div class="model-desc">Processes sequences step by step — context fades with distance</div>
+                <div class="model-acc">Acc. ~85%</div>
+              </div>
+            </div>
+            <div class="model-card" style="display:flex;align-items:center;gap:12px;padding:12px 14px">
+              <div style="font-size:22px;flex-shrink:0">🧠</div>
+              <div>
+                <div class="model-name">LSTM</div>
+                <div class="model-desc">Learns long-range dependencies via cell gates; handles negation</div>
+                <div class="model-acc">Acc. ~88–91%</div>
+              </div>
+            </div>
+            <div class="model-card" style="display:flex;align-items:center;gap:12px;padding:12px 14px">
+              <div style="font-size:22px;flex-shrink:0">⚡</div>
+              <div>
+                <div class="model-name">GRU</div>
+                <div class="model-desc">Lighter gated unit — similar to LSTM, faster to train</div>
+                <div class="model-acc">Acc. ~87–90%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BERT spotlight -->
+        <div class="bert-box">
+          <div class="bert-glow"></div>
+          <div style="position:relative">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <span style="font-size:26px">⚛️</span>
+                <div style="font-size:18px;font-weight:600;color:var(--accent)">BERT Transformer</div>
+              </div>
+              <span class="badge badge-accent">State-of-the-art</span>
+            </div>
+            <p style="font-size:13px;color:var(--text-secondary);line-height:1.65;margin-bottom:14px">
+              Reads context from <strong style="color:var(--text-primary)">both directions simultaneously</strong> using
+              self-attention — unlike earlier models that only read left-to-right. Fine-tuned BERT consistently
+              outperforms all classical approaches.
+            </p>
+            <div
+              style="background:var(--surface-2);border-radius:8px;padding:12px 14px;border:1px solid var(--accent-border)">
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Contextual negation — why BERT wins:
+              </div>
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px">
+                <span class="badge badge-red">Old models: "bad" → Negative</span>
+                <span style="color:var(--text-muted)">vs</span>
+                <span class="badge badge-green">BERT: "wasn't bad" → Positive</span>
+              </div>
+            </div>
+            <div style="margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center">
+              <div style="background:var(--surface-2);border-radius:8px;padding:10px">
+                <div style="font-size:18px;font-weight:700;color:var(--accent)">94%+</div>
+                <div style="font-size:11px;color:var(--text-muted)">SST-2 accuracy</div>
+              </div>
+              <div style="background:var(--surface-2);border-radius:8px;padding:10px">
+                <div style="font-size:18px;font-weight:700;color:var(--accent)">110M</div>
+                <div style="font-size:11px;color:var(--text-muted)">Parameters (base)</div>
+              </div>
+              <div style="background:var(--surface-2);border-radius:8px;padding:10px">
+                <div style="font-size:18px;font-weight:700;color:var(--accent)">12</div>
+                <div style="font-size:11px;color:var(--text-muted)">Attention layers</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ ACCURACY ══ -->
+    <section id="sec-accuracy" style="display:none" role="tabpanel">
+      <div class="sec-grid">
+
+        <div class="card">
+          <div class="card-label">Model accuracy comparison — SST-2 benchmark</div>
+          <div class="acc-chart">
+            <div class="acc-row">
+              <div class="acc-label">Naive Bayes</div>
+              <div class="acc-track">
+                <div class="acc-fill" style="--w:80%;width:80%;background:var(--text-muted)"></div>
+              </div>
+              <div class="acc-val">80%</div>
+            </div>
+            <div class="acc-row">
+              <div class="acc-label">Logistic Reg.</div>
+              <div class="acc-track">
+                <div class="acc-fill" style="--w:83%;width:83%;background:var(--text-secondary)"></div>
+              </div>
+              <div class="acc-val">83%</div>
+            </div>
+            <div class="acc-row">
+              <div class="acc-label">SVM</div>
+              <div class="acc-track">
+                <div class="acc-fill" style="--w:86%;width:86%;background:var(--blue)"></div>
+              </div>
+              <div class="acc-val">86%</div>
+            </div>
+            <div class="acc-row">
+              <div class="acc-label">LSTM</div>
+              <div class="acc-track">
+                <div class="acc-fill" style="--w:90%;width:90%;background:var(--accent)"></div>
+              </div>
+              <div class="acc-val">90%</div>
+            </div>
+            <div class="acc-row">
+              <div class="acc-label">BERT (fine-tuned)</div>
+              <div class="acc-track">
+                <div class="acc-fill"
+                  style="--w:95%;width:95%;background:linear-gradient(90deg,var(--accent),var(--green))"></div>
+              </div>
+              <div class="acc-val">95%</div>
+            </div>
+          </div>
+          <div class="tip" style="margin-top:16px">
+            <span class="tip-icon">💡</span>
+            <span>Accuracy varies by dataset and domain. Fine-tuning BERT on domain-specific data (e.g. product reviews)
+              typically pushes performance above the general benchmark.</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Choosing the right model</div>
+          <div style="display:grid;gap:9px">
+            <div style="background:var(--surface-2);border-radius:8px;padding:12px 14px;display:flex;gap:10px">
+              <span style="font-size:18px">🚀</span>
+              <div>
+                <div style="font-size:13px;font-weight:600;margin-bottom:2px">Speed matters most</div>
+                <div style="font-size:12px;color:var(--text-muted)">Use <span class="badge badge-muted"
+                    style="font-size:10px">Naive Bayes</span> or <span class="badge badge-muted"
+                    style="font-size:10px">TextBlob</span> — ideal for real-time streaming pipelines.</div>
+              </div>
+            </div>
+            <div style="background:var(--surface-2);border-radius:8px;padding:12px 14px;display:flex;gap:10px">
+              <span style="font-size:18px">⚖️</span>
+              <div>
+                <div style="font-size:13px;font-weight:600;margin-bottom:2px">Balanced performance</div>
+                <div style="font-size:12px;color:var(--text-muted)">Use <span class="badge badge-muted"
+                    style="font-size:10px">SVM</span> or <span class="badge badge-muted" style="font-size:10px">Logistic
+                    Reg.</span> — great accuracy with low compute overhead.</div>
+              </div>
+            </div>
+            <div style="background:var(--surface-2);border-radius:8px;padding:12px 14px;display:flex;gap:10px">
+              <span style="font-size:18px">🎯</span>
+              <div>
+                <div style="font-size:13px;font-weight:600;margin-bottom:2px">Best accuracy</div>
+                <div style="font-size:12px;color:var(--text-muted)">Use <span class="badge badge-accent"
+                    style="font-size:10px">Fine-tuned BERT</span> — highest accuracy, handles nuance, sarcasm, negation.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ TEXTBLOB ══ -->
+    <section id="sec-textblob" style="display:none" role="tabpanel">
+      <div class="sec-grid">
+
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <div style="font-size:15px;font-weight:600">🐍 TextBlob</div>
+            <span class="badge badge-muted">Rule-based</span>
+          </div>
+          <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Lightweight, no training required. Great
+            for quick prototyping.</p>
+
+          <div class="code-block" style="position:relative">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <span class="cm"># pip install textblob</span>
+            <span class="kw">from</span> textblob <span class="kw">import</span> TextBlob
+
+            text = <span class="st">"The mobile features are Amazing"</span>
+            blob = <span class="fn">TextBlob</span>(text)
+
+            <span class="kw">print</span>(blob.sentiment)
+            <span class="cm"># Sentiment(polarity=0.6, subjectivity=0.8)</span>
+
+            <span class="kw">print</span>(blob.sentiment.polarity) <span class="cm"># 0.6</span>
+            <span class="kw">print</span>(blob.sentiment.subjectivity) <span class="cm"># 0.8</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Score interpretation</div>
+
+          <div style="margin-bottom:18px">
+            <div
+              style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:6px">
+              <span>Polarity</span><span>−1 (very negative) → +1 (very positive)</span>
+            </div>
+            <div class="polarity-track">
+              <div class="polarity-needle" style="left:80%"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted)">
+              <span>−1</span><span>0 neutral</span><span>+1</span>
+            </div>
+          </div>
+
+          <div>
+            <div
+              style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:6px">
+              <span>Subjectivity</span><span>0 (objective) → 1 (subjective opinion)</span>
+            </div>
+            <div
+              style="height:10px;border-radius:100px;overflow:hidden;background:linear-gradient(90deg,var(--surface-3),var(--accent));position:relative;margin-bottom:4px">
+              <div class="polarity-needle" style="left:80%"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted)">
+              <span>0 objective</span><span>1 subjective</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Batch analysis</div>
+          <div class="code-block" style="position:relative">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            reviews = [
+            <span class="st">"The product is fantastic!"</span>,
+            <span class="st">"Worst purchase ever."</span>,
+            <span class="st">"It's okay, nothing special."</span>
+            ]
+
+            <span class="kw">for</span> r <span class="kw">in</span> reviews:
+            blob = <span class="fn">TextBlob</span>(r)
+            pol = blob.sentiment.polarity
+            label = <span class="st">"Positive"</span> <span class="kw">if</span> pol > <span class="st">0.05</span>
+            <span class="kw">else</span> <span class="st">"Negative"</span> <span class="kw">if</span> pol < <span
+              class="st">-0.05</span> <span class="kw">else</span> <span class="st">"Neutral"</span>
+              <span class="kw">print</span>(f<span class="st">"{label} ({pol:.2f}): {r}"</span>)
+          </div>
+        </div>
+
+        <div class="tip">
+          <span class="tip-icon">💡</span>
+          <span>TextBlob uses a fixed lexicon — it doesn't understand context, so "not bad" may incorrectly score as
+            negative. For nuanced text, prefer HuggingFace transformers.</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ HUGGINGFACE ══ -->
+    <section id="sec-hf" style="display:none" role="tabpanel">
+      <div class="sec-grid">
+
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <div style="font-size:15px;font-weight:600">🤗 HuggingFace Transformers</div>
+            <span class="badge badge-accent">BERT-based</span>
+          </div>
+          <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">State-of-the-art results with 2 lines of
+            code. Powered by pre-trained BERT / DistilBERT.</p>
+
+          <div style="font-size:13px;font-weight:500;margin-bottom:8px">Single review</div>
+          <div class="code-block" style="position:relative">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <span class="cm"># pip install transformers torch</span>
+            <span class="kw">from</span> transformers <span class="kw">import</span> pipeline
+
+            classifier = <span class="fn">pipeline</span>(<span class="st">"sentiment-analysis"</span>)
+            result = classifier(<span class="st">"The mobile features are Amazing"</span>)
+            <span class="kw">print</span>(result)
+            <span class="cm"># [{'label': 'POSITIVE', 'score': 0.9998}]</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="font-size:13px;font-weight:500;margin-bottom:8px">Batch reviews with zip</div>
+          <div class="code-block" style="position:relative">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            reviews = [
+            <span class="st">"The movie is average"</span>,
+            <span class="st">"The story is bad"</span>,
+            <span class="st">"Songs are Excellent"</span>,
+            <span class="st">"Screenplay is worst"</span>
+            ]
+
+            results = classifier(reviews)
+            <span class="kw">for</span> text, sentiment <span class="kw">in</span> <span class="fn">zip</span>(reviews,
+            results):
+            <span class="kw">print</span>(f<span class="st">"Review: {text}"</span>)
+            <span class="kw">print</span>(f<span class="st">"Sentiment: {sentiment['label']}
+              ({sentiment['score']:.4f})"</span>)
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Expected output</div>
+          <div style="display:grid;gap:7px" id="hf-results">
+            <div class="result-row" style="animation-delay:0s">
+              <span class="text">"The movie is average"</span>
+              <span class="badge badge-green">POSITIVE 0.58</span>
+            </div>
+            <div class="result-row" style="animation-delay:.07s">
+              <span class="text">"The story is bad"</span>
+              <span class="badge badge-red">NEGATIVE 0.99</span>
+            </div>
+            <div class="result-row" style="animation-delay:.14s">
+              <span class="text">"Songs are Excellent"</span>
+              <span class="badge badge-green">POSITIVE 0.99</span>
+            </div>
+            <div class="result-row" style="animation-delay:.21s">
+              <span class="text">"Screenplay is worst"</span>
+              <span class="badge badge-red">NEGATIVE 0.99</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ LIVE AI DEMO ══ -->
+    <section id="sec-demo" style="display:none" role="tabpanel">
+      <div class="sec-grid">
+
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <div style="font-size:15px;font-weight:600">⚡ Live Sentiment Analyzer</div>
+            <span class="badge badge-accent">Powered by Claude AI</span>
+          </div>
+          <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Type any text and get real AI-powered
+            sentiment analysis — polarity, subjectivity, key signals, and explanation.</p>
+
+          <textarea id="demo-text" class="demo-textarea" rows="3"
+            placeholder="Type a review, tweet, or any sentence…">The mobile features are absolutely Amazing!</textarea>
+
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+            <button class="demo-btn" id="analyze-btn" onclick="analyzeWithAI()">Analyze Sentiment ↗</button>
+            <button class="demo-btn"
+              style="background:var(--surface-2);color:var(--text-secondary);border:1px solid var(--border)"
+              onclick="insertSample(this)">Try a sample</button>
+          </div>
+
+          <!-- Sample phrases -->
+          <div id="samples" style="display:none;margin-top:10px">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Click to try:</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              <button class="sample-chip" onclick="setSample(this)">"The food wasn't bad at all!"</button>
+              <button class="sample-chip" onclick="setSample(this)">"I can't believe how terrible this is."</button>
+              <button class="sample-chip" onclick="setSample(this)">"It's okay, nothing really stood out."</button>
+              <button class="sample-chip" onclick="setSample(this)">"Absolutely loved every single moment!"</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Result card -->
+        <div id="demo-result" class="result-card">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+            <span id="result-icon" style="font-size:36px"></span>
+            <div>
+              <div id="result-label" style="font-size:20px;font-weight:700"></div>
+              <div id="result-confidence" style="font-size:12px;color:var(--text-muted);margin-top:2px"></div>
+            </div>
+          </div>
+
+          <hr style="margin-bottom:14px">
+
+          <div style="display:grid;gap:12px;margin-bottom:14px">
+            <div>
+              <div
+                style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:4px">
+                <span>Polarity</span><span id="pol-val"></span>
+              </div>
+              <div class="meter-track">
+                <div id="pol-bar" class="meter-fill"></div>
+              </div>
+              <div
+                style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-top:3px">
+                <span>−1 Negative</span><span>0 Neutral</span><span>+1 Positive</span>
+              </div>
+            </div>
+            <div>
+              <div
+                style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:4px">
+                <span>Subjectivity</span><span id="sub-val"></span>
+              </div>
+              <div class="meter-track">
+                <div id="sub-bar" class="meter-fill" style="background:var(--accent)"></div>
+              </div>
+              <div
+                style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-top:3px">
+                <span>Objective</span><span>Subjective</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="signals-wrap" style="display:none;margin-bottom:12px">
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">Key sentiment signals:</div>
+            <div id="signals"></div>
+          </div>
+
+          <div id="explanation-wrap"
+            style="background:var(--surface-2);border-radius:8px;padding:12px 14px;display:none">
+            <div
+              style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.06em">
+              Why this result</div>
+            <div id="explanation" style="font-size:13px;color:var(--text-secondary);line-height:1.6"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <style>
+    .sample-chip {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      border-radius: 6px;
+      font-size: 11px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: all .15s;
+    }
+
+    .sample-chip:hover {
+      color: var(--text-primary);
+      border-color: var(--border-strong);
+    }
+  </style>
+
+  <script>
+    /* ── Tab navigation ── */
+    const SECTIONS = ['pipeline', 'models', 'accuracy', 'textblob', 'hf', 'demo'];
+    function showSection(id, btn) {
+      SECTIONS.forEach(s => {
+        const el = document.getElementById('sec-' + s);
+        if (el) el.style.display = s === id ? '' : 'none';
+      });
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    /* ── Copy code ── */
+    function copyCode(btn) {
+      const block = btn.nextSibling;
+      const text = block ? block.textContent.trim() : '';
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 1500);
+      });
+    }
+
+    /* ── Samples ── */
+    function insertSample(btn) {
+      const s = document.getElementById('samples');
+      s.style.display = s.style.display === 'none' ? '' : 'none';
+    }
+    function setSample(btn) {
+      document.getElementById('demo-text').value = btn.textContent.replace(/^"|"$/g, '');
+      document.getElementById('samples').style.display = 'none';
+    }
+
+    /* ── AI Analysis ── */
+    async function analyzeWithAI() {
+      const text = document.getElementById('demo-text').value.trim();
+      if (!text) return;
+
+      const btn = document.getElementById('analyze-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Analyzing…';
+
+      const resultCard = document.getElementById('demo-result');
+      resultCard.style.display = 'none';
+
+      try {
+        const prompt = `Analyze the sentiment of this text and respond ONLY with a JSON object (no markdown, no explanation outside JSON):
+
+Text: "${text}"
+
+JSON format:
+{
+  "label": "Positive" | "Negative" | "Neutral",
+  "polarity": <number between -1.0 and 1.0>,
+  "subjectivity": <number between 0.0 and 1.0>,
+  "confidence": <number between 0 and 100>,
+  "positive_signals": [<list of positive words/phrases found, or empty array>],
+  "negative_signals": [<list of negative words/phrases found, or empty array>],
+  "explanation": "<one or two sentences explaining the sentiment judgement>"
+}`;
+
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-6',
+            max_tokens: 1000,
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+
+        const data = await response.json();
+        const raw = data.content.map(c => c.text || '').join('');
+        const clean = raw.replace(/```json|```/g, '').trim();
+        const result = JSON.parse(clean);
+        renderResult(result);
+      } catch (err) {
+        console.error(err);
+        // Fallback to local heuristic
+        renderResult(localAnalyze(text));
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Analyze Sentiment ↗';
+      }
+    }
+
+    function localAnalyze(text) {
+      const POS = ['amazing', 'excellent', 'great', 'good', 'wonderful', 'fantastic', 'love', 'perfect', 'beautiful', 'awesome', 'best', 'happy', 'brilliant'];
+      const NEG = ['bad', 'worst', 'terrible', 'horrible', 'awful', 'poor', 'hate', 'disappointing', 'boring', 'broken', 'fail', 'useless', 'mediocre', 'dreadful'];
+      const words = text.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/);
+      let pol = 0; const pos = [], neg = [];
+      words.forEach(w => {
+        if (POS.includes(w)) { pol += 0.4; pos.push(w); }
+        if (NEG.includes(w)) { pol -= 0.35; neg.push(w); }
+      });
+      pol = Math.max(-1, Math.min(1, pol));
+      const label = pol > 0.05 ? 'Positive' : pol < -0.05 ? 'Negative' : 'Neutral';
+      return {
+        label, polarity: pol, subjectivity: 0.6, confidence: 72,
+        positive_signals: pos, negative_signals: neg,
+        explanation: 'Scored using a local lexicon (AI API unavailable). Install server-side API key for full AI analysis.'
+      };
+    }
+
+    function renderResult(r) {
+      const card = document.getElementById('demo-result');
+      card.className = 'result-card ' + r.label.toLowerCase();
+      card.style.display = '';
+
+      const icons = { Positive: '😊', Negative: '😞', Neutral: '😐' };
+      const labelColors = { Positive: 'var(--green)', Negative: 'var(--red)', Neutral: 'var(--text-secondary)' };
+      document.getElementById('result-icon').textContent = icons[r.label];
+      const lel = document.getElementById('result-label');
+      lel.textContent = r.label;
+      lel.style.color = labelColors[r.label];
+      document.getElementById('result-confidence').textContent = `Confidence: ${r.confidence}%`;
+
+      // Polarity meter (map -1..1 → 0..100%)
+      const polPct = ((r.polarity + 1) / 2 * 100).toFixed(0);
+      const polColor = r.polarity > 0 ? 'var(--green)' : r.polarity < 0 ? 'var(--red)' : 'var(--text-muted)';
+      document.getElementById('pol-val').textContent = r.polarity.toFixed(2);
+      const pb = document.getElementById('pol-bar');
+      pb.style.width = polPct + '%'; pb.style.background = polColor;
+
+      // Subjectivity
+      const subPct = (r.subjectivity * 100).toFixed(0);
+      document.getElementById('sub-val').textContent = r.subjectivity.toFixed(2);
+      const sb = document.getElementById('sub-bar');
+      sb.style.width = subPct + '%';
+
+      // Signals
+      const sWrap = document.getElementById('signals-wrap');
+      const sDiv = document.getElementById('signals');
+      const posS = (r.positive_signals || []);
+      const negS = (r.negative_signals || []);
+      if (posS.length || negS.length) {
+        sWrap.style.display = '';
+        sDiv.innerHTML = [
+          ...posS.map(w => `<span class="signal-pill signal-pos">+${w}</span>`),
+          ...negS.map(w => `<span class="signal-pill signal-neg">−${w}</span>`)
+        ].join('');
+      } else {
+        sWrap.style.display = 'none';
+      }
+
+      // Explanation
+      if (r.explanation) {
+        document.getElementById('explanation-wrap').style.display = '';
+        document.getElementById('explanation').textContent = r.explanation;
+      } else {
+        document.getElementById('explanation-wrap').style.display = 'none';
+      }
+    }
+  </script>
+</body>
+
+</html>
